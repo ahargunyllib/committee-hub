@@ -25,12 +25,16 @@ export type NotificationRepository = {
 export const createNotificationRepository = (
   _db: DB
 ): NotificationRepository => ({
+  // Query a user's notification feed, newest first, optionally filtered by read state.
   listNotifications: (_input) =>
     notImplemented("notification.repository.listNotifications"),
+  // Persist one in-app notification from an internal domain event.
   createNotification: (_input) =>
     notImplemented("notification.repository.createNotification"),
+  // Mark one notification read only when it belongs to the requesting user.
   markAsRead: (_notificationId, _userId) =>
     notImplemented("notification.repository.markAsRead"),
+  // Bulk-mark unread notifications for one user and return the affected count.
   markAllAsRead: (_userId) =>
     notImplemented("notification.repository.markAllAsRead"),
 });

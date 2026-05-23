@@ -1,11 +1,5 @@
 import { Elysia, t } from "elysia";
-import { db } from "../../db";
-import { createEventRepository } from "./event.repository";
-import { createEventService } from "./event.service";
-
-const eventService = createEventService({
-  repository: createEventRepository(db),
-});
+import type { EventService } from "./event.service";
 
 const eventType = t.Union([t.Literal("internal"), t.Literal("external")]);
 const eventStatus = t.Union([
@@ -14,120 +8,125 @@ const eventStatus = t.Union([
   t.Literal("closed"),
 ]);
 
-export const eventRoutes = new Elysia({
-  name: "event-routes",
-  prefix: "/events",
-})
-  .get("/", ({ query }) => eventService.listEvents(query), {
-    query: t.Object({
-      search: t.Optional(t.String()),
-      status: t.Optional(eventStatus),
-      type: t.Optional(eventType),
-    }),
-    detail: {
-      summary: "List events",
-      tags: ["Event"],
-    },
+export const createEventRoutes = (eventService: EventService) =>
+  new Elysia({
+    name: "event-routes",
+    prefix: "/events",
   })
-  .post("/", ({ body }) => eventService.createEvent(body), {
-    body: t.Object({
-      createdById: t.String(),
-      date: t.String({ format: "date-time" }),
-      description: t.Optional(t.String()),
-      location: t.String(),
-      name: t.String(),
-      quota: t.Number({ minimum: 1 }),
-      type: eventType,
-    }),
-    detail: {
-      summary: "Create an event",
-      tags: ["Event"],
-    },
-  })
-  .get("/:eventId", ({ params }) => eventService.getEventById(params.eventId), {
-    params: t.Object({
-      eventId: t.String(),
-    }),
-    detail: {
-      summary: "Get event by id",
-      tags: ["Event"],
-    },
-  })
-  .patch(
-    "/:eventId",
-    ({ body, params }) => eventService.updateEvent(params.eventId, body),
-    {
-      params: t.Object({
-        eventId: t.String(),
-      }),
-      body: t.Object({
-        date: t.Optional(t.String({ format: "date-time" })),
-        description: t.Optional(t.String()),
-        location: t.Optional(t.String()),
-        name: t.Optional(t.String()),
-        quota: t.Optional(t.Number({ minimum: 1 })),
+    .get("/", ({ query }) => eventService.listEvents(query), {
+      query: t.Object({
+        search: t.Optional(t.String()),
         status: t.Optional(eventStatus),
         type: t.Optional(eventType),
       }),
       detail: {
-        summary: "Update an event",
+        summary: "List events",
         tags: ["Event"],
       },
-    }
-  )
-  .delete(
-    "/:eventId",
-    ({ params }) => eventService.deleteEvent(params.eventId),
-    {
-      params: t.Object({
-        eventId: t.String(),
-      }),
-      detail: {
-        summary: "Delete an event",
-        tags: ["Event"],
-      },
-    }
-  )
-  .post(
-    "/:eventId/registrations",
-    ({ body, params }) =>
-      eventService.registerParticipant(params.eventId, body.userId),
-    {
-      params: t.Object({
-        eventId: t.String(),
-      }),
+    })
+    .post("/", ({ body }) => eventService.createEvent(body), {
       body: t.Object({
-        userId: t.String(),
+        createdById: t.String(),
+        date: t.String({ format: "date-time" }),
+        description: t.Optional(t.String()),
+        location: t.String(),
+        name: t.String(),
+        quota: t.Number({ minimum: 1 }),
+        type: eventType,
       }),
       detail: {
-        summary: "Register a participant for an event",
+        summary: "Create an event",
         tags: ["Event"],
       },
-    }
-  )
-  .get(
-    "/:eventId/registrations",
-    ({ params }) => eventService.listRegistrations(params.eventId),
-    {
-      params: t.Object({
-        eventId: t.String(),
-      }),
-      detail: {
-        summary: "List event registrations",
-        tags: ["Event"],
-      },
-    }
-  )
-  .post(
-    "/tickets/:ticketCode/verify",
-    ({ params }) => eventService.verifyTicket(params.ticketCode),
-    {
-      params: t.Object({
-        ticketCode: t.String(),
-      }),
-      detail: {
-        summary: "Verify a ticket code",
-        tags: ["Event"],
-      },
-    }
-  );
+    })
+    .get(
+      "/:eventId",
+      ({ params }) => eventService.getEventById(params.eventId),
+      {
+        params: t.Object({
+          eventId: t.String(),
+        }),
+        detail: {
+          summary: "Get event by id",
+          tags: ["Event"],
+        },
+      }
+    )
+    .patch(
+      "/:eventId",
+      ({ body, params }) => eventService.updateEvent(params.eventId, body),
+      {
+        params: t.Object({
+          eventId: t.String(),
+        }),
+        body: t.Object({
+          date: t.Optional(t.String({ format: "date-time" })),
+          description: t.Optional(t.String()),
+          location: t.Optional(t.String()),
+          name: t.Optional(t.String()),
+          quota: t.Optional(t.Number({ minimum: 1 })),
+          status: t.Optional(eventStatus),
+          type: t.Optional(eventType),
+        }),
+        detail: {
+          summary: "Update an event",
+          tags: ["Event"],
+        },
+      }
+    )
+    .delete(
+      "/:eventId",
+      ({ params }) => eventService.deleteEvent(params.eventId),
+      {
+        params: t.Object({
+          eventId: t.String(),
+        }),
+        detail: {
+          summary: "Delete an event",
+          tags: ["Event"],
+        },
+      }
+    )
+    .post(
+      "/:eventId/registrations",
+      ({ body, params }) =>
+        eventService.registerParticipant(params.eventId, body.userId),
+      {
+        params: t.Object({
+          eventId: t.String(),
+        }),
+        body: t.Object({
+          userId: t.String(),
+        }),
+        detail: {
+          summary: "Register a participant for an event",
+          tags: ["Event"],
+        },
+      }
+    )
+    .get(
+      "/:eventId/registrations",
+      ({ params }) => eventService.listRegistrations(params.eventId),
+      {
+        params: t.Object({
+          eventId: t.String(),
+        }),
+        detail: {
+          summary: "List event registrations",
+          tags: ["Event"],
+        },
+      }
+    )
+    .post(
+      "/tickets/:ticketCode/verify",
+      ({ params }) => eventService.verifyTicket(params.ticketCode),
+      {
+        params: t.Object({
+          ticketCode: t.String(),
+        }),
+        detail: {
+          summary: "Verify a ticket code",
+          tags: ["Event"],
+        },
+      }
+    );

@@ -95,6 +95,36 @@ Not every project needs all of these. Add roles as complexity demands.
 - Does it call an external API? -> Gateway
 - Is it a cross-cutting concern? -> Middleware
 
+### API Layering in committee-hub
+
+The API uses a modular monolith. Feature modules normally expose `route`,
+`service`, `repository`, and `schema` files, but those layers still need to
+earn their keep:
+
+- **Route handlers** parse HTTP input, call one service method, and format the
+  HTTP response. They should not contain business rules or Drizzle queries.
+- **Services** own business policy and orchestration: status transitions,
+  role/permission decisions, multi-step workflows, transactions coordinated by
+  a repository method, and event emission after a successful write.
+- **Repositories** own persistence details: Drizzle queries, joins, FK-backed
+  existence checks, uniqueness conflicts, and mapping database failures into
+  domain/application errors.
+- A service that only forwards to a repository is acceptable in an initial
+  scaffold, but when implementation lands it should either gain real business
+  logic or be collapsed for genuinely simple CRUD.
+
+Module boundaries are dependency boundaries, not database walls:
+
+- A service must not call another module's service or repository directly.
+- A repository may read shared/reference tables when the check is part of its
+  persistence invariant. Example: `event.repository` may check `userTable`
+  before inserting `event.created_by_id`.
+- Use database foreign keys for hard integrity, pre-checks for clearer user
+  errors, and internal events for post-success side effects.
+- Better Auth is infrastructure mounted from `apps/api/src/lib/auth.ts`; its
+  `user` table schema lives under `apps/api/src/db/auth.schema.ts`, not as a
+  normal business module.
+
 ---
 
 ## Patterns to Follow
@@ -129,6 +159,23 @@ Use Result types or union returns for expected failure cases. Reserve exceptions
 type CreateOrderResult =
   | { ok: true; order: Order }
   | { ok: false; reason: "out_of_stock" | "payment_failed" };
+```
+
+For expected async failures, use the local `tryCatch` helper instead of
+Promise chains. Application code should use `async/await`; do not use
+`.then()`, `.catch()`, or `.finally()`.
+
+```typescript
+import { tryCatch } from "../lib/try-catch";
+
+const { data, error } = await tryCatch(repository.createOrder(input));
+
+if (error) {
+  logger.warn({ error }, "Failed to create order");
+  return { ok: false, reason: "create_failed" };
+}
+
+return { ok: true, order: data };
 ```
 
 ---

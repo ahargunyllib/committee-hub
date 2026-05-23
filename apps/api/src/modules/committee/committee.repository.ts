@@ -42,16 +42,22 @@ export type CommitteeRepository = {
 };
 
 export const createCommitteeRepository = (_db: DB): CommitteeRepository => ({
+  // Read divisions owned by an event; event existence can be enforced by FK or checked for a better error.
   listDivisionsByEvent: (_eventId) =>
     notImplemented("committee.repository.listDivisionsByEvent"),
+  // Insert a division for an event and let the event/name unique index prevent duplicates.
   createDivision: (_input) =>
     notImplemented("committee.repository.createDivision"),
+  // Update mutable division fields while preserving the event boundary.
   updateDivision: (_divisionId, _input) =>
     notImplemented("committee.repository.updateDivision"),
+  // Insert an application and let the division/user unique index prevent duplicate applications.
   createApplication: (_input) =>
     notImplemented("committee.repository.createApplication"),
+  // List applicants for a division; join user details here if the review UI needs them.
   listApplicationsByDivision: (_divisionId) =>
     notImplemented("committee.repository.listApplicationsByDivision"),
+  // Update review status, reviewer, and timestamp in one write; service emits notification after success.
   reviewApplication: (_applicationId, _input) =>
     notImplemented("committee.repository.reviewApplication"),
 });

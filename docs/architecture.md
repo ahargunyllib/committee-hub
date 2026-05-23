@@ -2,7 +2,7 @@
 
 ## Overview
 
-committee-hub is a **modular monolith** deployed as a single backend service alongside a separate frontend SPA. All business logic lives in one codebase, organized into clearly bounded modules. Each module owns its routes, service logic, and database queries.
+committee-hub is a **modular monolith** deployed as a single backend service alongside a separate frontend SPA. All business logic lives in one codebase, organized into clearly bounded modules. Business modules own their routes, service logic, and database queries.
 
 See [ADR 002](adrs/002-modular-monolith.md) for the reasoning behind this choice.
 
@@ -13,7 +13,7 @@ See [ADR 002](adrs/002-modular-monolith.md) for the reasoning behind this choice
 │   apps/         │        │   apps/api                               │
 │   dashboard     │ HTTP   │                                          │
 │                 │ ──────►│  ElysiaJS                                │
-│  React + Vite   │        │  ├── auth module                         │
+│  React + Vite   │        │  ├── Better Auth handler                 │
 │  TanStack       │        │  ├── committee module                    │
 │  Router         │        │  ├── proposal module                     │
 │  TanStack Query │        │  ├── event module                        │
@@ -47,16 +47,31 @@ See [ADR 002](adrs/002-modular-monolith.md) for the reasoning behind this choice
 
 ## Module Breakdown (apps/api)
 
-Each module follows the `route → service → repository` pattern.
+Business modules follow the `route → service → repository` pattern when the
+workflow has business rules beyond simple persistence. The current v1 modules
+are expected to grow into those workflows, so the scaffold keeps those
+boundaries explicit. Auth is the exception: Better Auth owns the HTTP handler
+and session flow directly.
 
 | Module       | Responsibility                                               |
 | ------------ | ------------------------------------------------------------ |
-| auth         | Login, registration, session, SIAKAD validation, JWT         |
 | committee    | Division management, committee recruitment, applicant review |
 | proposal     | Proposal submission, multi-level approval workflow, revision |
 | event        | Event CRUD, participant registration, ticket issuance        |
 | notification | In-process event-driven notifications, notification feed     |
 | admin        | User/role management, system config                          |
+
+### Module Boundaries
+
+- Route handlers call services and stay HTTP-focused.
+- Services do not import services or repositories from other modules.
+- Repositories may query shared/reference tables for DB-level invariants. For
+  example, the event repository may check `userTable` before creating an event
+  because `event.created_by_id` is a foreign key to Better Auth's `user` table.
+- Cross-module side effects use internal events. For example, registration or
+  proposal review can emit an event that the notification module listens to.
+- Better Auth's `user`, `session`, `account`, and `verification` schemas live
+  in `apps/api/src/db/auth.schema.ts` as auth infrastructure.
 
 ## Auth Flow
 
@@ -67,7 +82,9 @@ Each module follows the `route → service → repository` pattern.
 5. All protected routes verify the session via better-auth middleware
 6. Admin can upgrade a user's role via the admin module
 
-The better-auth server instance lives in `apps/api/src/lib/auth.ts`.
+The better-auth server instance lives in `apps/api/src/lib/auth.ts` and is
+mounted directly into Elysia with `auth.handler`.
+Better Auth OpenAPI metadata is merged into `/swagger/json`.
 The client instance lives in `apps/dashboard/src/lib/auth.ts` and points to the API URL.
 Google OAuth credentials are configured in `apps/api/.env`.
 

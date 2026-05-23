@@ -39,16 +39,24 @@ export type EventRepository = {
 };
 
 export const createEventRepository = (_db: DB): EventRepository => ({
+  // Query events with filters on columns owned by the event module.
   listEvents: (_input) => notImplemented("event.repository.listEvents"),
+  // Insert the event and rely on the FK to user.id, or pre-check userTable for a friendlier creator-not-found error.
   createEvent: (_input) => notImplemented("event.repository.createEvent"),
+  // Fetch one event by primary key; return null so the service can decide the API/domain error shape.
   getEventById: (_eventId) => notImplemented("event.repository.getEventById"),
+  // Update only mutable event fields and return the updated row.
   updateEvent: (_eventId, _input) =>
     notImplemented("event.repository.updateEvent"),
+  // Delete or soft-delete the event depending on final product policy.
   deleteEvent: (_eventId) => notImplemented("event.repository.deleteEvent"),
+  // Create registration and ticket in one transaction after checking event status/quota and duplicate registration.
   createRegistration: (_eventId, _userId) =>
     notImplemented("event.repository.createRegistration"),
+  // List registrations for one event, with joins to user/ticket only when the caller needs those details.
   listRegistrations: (_eventId) =>
     notImplemented("event.repository.listRegistrations"),
+  // Look up a unique ticket code and mark it used atomically when attendance verification is implemented.
   verifyTicket: (_ticketCode) =>
     notImplemented("event.repository.verifyTicket"),
 });

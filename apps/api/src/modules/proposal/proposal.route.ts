@@ -1,11 +1,5 @@
 import { Elysia, t } from "elysia";
-import { db } from "../../db";
-import { createProposalRepository } from "./proposal.repository";
-import { createProposalService } from "./proposal.service";
-
-const proposalService = createProposalService({
-  repository: createProposalRepository(db),
-});
+import type { ProposalService } from "./proposal.service";
 
 const proposalScope = t.Union([
   t.Literal("ormawa"),
@@ -26,111 +20,112 @@ const proposalDecision = t.Union([
   t.Literal("revision_requested"),
 ]);
 
-export const proposalRoutes = new Elysia({
-  name: "proposal-routes",
-  prefix: "/proposals",
-})
-  .get("/", ({ query }) => proposalService.listProposals(query), {
-    query: t.Object({
-      scope: t.Optional(proposalScope),
-      status: t.Optional(proposalStatus),
-      submittedById: t.Optional(t.String()),
-    }),
-    detail: {
-      summary: "List proposals",
-      tags: ["Proposal"],
-    },
+export const createProposalRoutes = (proposalService: ProposalService) =>
+  new Elysia({
+    name: "proposal-routes",
+    prefix: "/proposals",
   })
-  .post("/", ({ body }) => proposalService.createProposal(body), {
-    body: t.Object({
-      description: t.Optional(t.String()),
-      documentUrl: t.Optional(t.String()),
-      eventId: t.String(),
-      scope: proposalScope,
-      submittedById: t.String(),
-      title: t.String(),
-    }),
-    detail: {
-      summary: "Create a proposal",
-      tags: ["Proposal"],
-    },
-  })
-  .get(
-    "/:proposalId",
-    ({ params }) => proposalService.getProposalById(params.proposalId),
-    {
-      params: t.Object({
-        proposalId: t.String(),
+    .get("/", ({ query }) => proposalService.listProposals(query), {
+      query: t.Object({
+        scope: t.Optional(proposalScope),
+        status: t.Optional(proposalStatus),
+        submittedById: t.Optional(t.String()),
       }),
       detail: {
-        summary: "Get proposal by id",
+        summary: "List proposals",
         tags: ["Proposal"],
       },
-    }
-  )
-  .patch(
-    "/:proposalId",
-    ({ body, params }) =>
-      proposalService.updateProposal(params.proposalId, body),
-    {
-      params: t.Object({
-        proposalId: t.String(),
-      }),
+    })
+    .post("/", ({ body }) => proposalService.createProposal(body), {
       body: t.Object({
         description: t.Optional(t.String()),
         documentUrl: t.Optional(t.String()),
-        scope: t.Optional(proposalScope),
-        title: t.Optional(t.String()),
+        eventId: t.String(),
+        scope: proposalScope,
+        submittedById: t.String(),
+        title: t.String(),
       }),
       detail: {
-        summary: "Revise a proposal",
+        summary: "Create a proposal",
         tags: ["Proposal"],
       },
-    }
-  )
-  .post(
-    "/:proposalId/submit",
-    ({ params }) => proposalService.submitProposal(params.proposalId),
-    {
-      params: t.Object({
-        proposalId: t.String(),
-      }),
-      detail: {
-        summary: "Submit or resubmit a proposal",
-        tags: ["Proposal"],
-      },
-    }
-  )
-  .post(
-    "/:proposalId/reviews",
-    ({ body, params }) =>
-      proposalService.reviewProposal(params.proposalId, body),
-    {
-      params: t.Object({
-        proposalId: t.String(),
-      }),
-      body: t.Object({
-        decision: proposalDecision,
-        level: proposalScope,
-        notes: t.Optional(t.String()),
-        reviewerId: t.String(),
-      }),
-      detail: {
-        summary: "Review a proposal",
-        tags: ["Proposal"],
-      },
-    }
-  )
-  .get(
-    "/:proposalId/approvals",
-    ({ params }) => proposalService.listApprovals(params.proposalId),
-    {
-      params: t.Object({
-        proposalId: t.String(),
-      }),
-      detail: {
-        summary: "List proposal approval history",
-        tags: ["Proposal"],
-      },
-    }
-  );
+    })
+    .get(
+      "/:proposalId",
+      ({ params }) => proposalService.getProposalById(params.proposalId),
+      {
+        params: t.Object({
+          proposalId: t.String(),
+        }),
+        detail: {
+          summary: "Get proposal by id",
+          tags: ["Proposal"],
+        },
+      }
+    )
+    .patch(
+      "/:proposalId",
+      ({ body, params }) =>
+        proposalService.updateProposal(params.proposalId, body),
+      {
+        params: t.Object({
+          proposalId: t.String(),
+        }),
+        body: t.Object({
+          description: t.Optional(t.String()),
+          documentUrl: t.Optional(t.String()),
+          scope: t.Optional(proposalScope),
+          title: t.Optional(t.String()),
+        }),
+        detail: {
+          summary: "Revise a proposal",
+          tags: ["Proposal"],
+        },
+      }
+    )
+    .post(
+      "/:proposalId/submit",
+      ({ params }) => proposalService.submitProposal(params.proposalId),
+      {
+        params: t.Object({
+          proposalId: t.String(),
+        }),
+        detail: {
+          summary: "Submit or resubmit a proposal",
+          tags: ["Proposal"],
+        },
+      }
+    )
+    .post(
+      "/:proposalId/reviews",
+      ({ body, params }) =>
+        proposalService.reviewProposal(params.proposalId, body),
+      {
+        params: t.Object({
+          proposalId: t.String(),
+        }),
+        body: t.Object({
+          decision: proposalDecision,
+          level: proposalScope,
+          notes: t.Optional(t.String()),
+          reviewerId: t.String(),
+        }),
+        detail: {
+          summary: "Review a proposal",
+          tags: ["Proposal"],
+        },
+      }
+    )
+    .get(
+      "/:proposalId/approvals",
+      ({ params }) => proposalService.listApprovals(params.proposalId),
+      {
+        params: t.Object({
+          proposalId: t.String(),
+        }),
+        detail: {
+          summary: "List proposal approval history",
+          tags: ["Proposal"],
+        },
+      }
+    );

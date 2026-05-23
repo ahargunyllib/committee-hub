@@ -19,7 +19,7 @@ Run from repo root unless noted.
 | `bun --cwd apps/api db:generate` | Generate migration files |
 | `bun --cwd apps/api db:migrate` | Run migrations |
 | `bun --cwd apps/api db:studio` | Open Drizzle Studio |
-| `bun lint` | Lint all apps |
+| `bun fix` | Lint all apps |
 | `bun typecheck` | Type check all apps |
 
 ## Architecture
@@ -32,7 +32,8 @@ Run from repo root unless noted.
 
 ## Module Structure (apps/api)
 
-Each module follows the same pattern: `route → service → repository`.
+Business modules follow the same pattern when business workflow complexity
+justifies it: `route → service → repository`.
 
 ```
 src/modules/<module>/
@@ -42,24 +43,29 @@ src/modules/<module>/
   <module>.schema.ts     # Drizzle table schema
 ```
 
-Modules: `auth`, `committee`, `proposal`, `event`, `notification`, `admin`
+Modules: `committee`, `proposal`, `event`, `notification`, `admin`
+
+Auth is handled directly by Better Auth in `apps/api/src/lib/auth.ts`; the auth
+database tables live in `apps/api/src/db/auth.schema.ts`.
 
 ## Coding Conventions
 
 - Use TypeScript strictly. No `any`.
 - Validation with Zod or ElysiaJS typebox, not manual checks.
-- Services do not import from other services directly; use repository or internal events.
+- Services do not import from other services or other module repositories directly; use their own repository or internal events.
 - Notifications are triggered via an in-process event emitter, not direct service calls.
 - Keep route handlers thin; business logic belongs in the service layer.
 - Drizzle schemas are the single source of truth for data shape.
 - Use `snake_case` for database columns, `camelCase` for TypeScript.
+- Use `async/await`; do not use Promise `.then()`, `.catch()`, or `.finally()` in app code.
+- Use the local `tryCatch` helper for expected async failures that should be handled as values.
 
 ## What Not To Do
 
 - Do not add Redis or any external message broker; notifications are in-process.
 - Do not create a `packages/auth` workspace; auth server stays in `apps/api`.
 - Do not add email/password auth; Google OAuth is the only login method.
-- Do not bypass the service layer from a route handler.
+- Do not bypass the service layer from a route handler for business workflows.
 - Do not write raw SQL; use Drizzle query builder.
 - Do not commit `.env` files.
 

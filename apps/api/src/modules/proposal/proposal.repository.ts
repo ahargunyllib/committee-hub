@@ -45,18 +45,25 @@ export type ProposalRepository = {
 };
 
 export const createProposalRepository = (_db: DB): ProposalRepository => ({
+  // Query proposals by reviewer-facing filters such as status, scope, and submitter.
   listProposals: (_input) =>
     notImplemented("proposal.repository.listProposals"),
+  // Insert the proposal linked to one event and submitter; unique event FK keeps one proposal per event.
   createProposal: (_input) =>
     notImplemented("proposal.repository.createProposal"),
+  // Fetch one proposal by primary key; service decides whether null becomes not-found.
   getProposalById: (_proposalId) =>
     notImplemented("proposal.repository.getProposalById"),
+  // Apply revisions to draft/revision-requested proposal fields before resubmission.
   updateProposal: (_proposalId, _input) =>
     notImplemented("proposal.repository.updateProposal"),
+  // Move a proposal into pending review and increment submission round when resubmitting.
   submitProposal: (_proposalId) =>
     notImplemented("proposal.repository.submitProposal"),
+  // Insert approval history and update proposal status in one transaction.
   reviewProposal: (_proposalId, _input) =>
     notImplemented("proposal.repository.reviewProposal"),
+  // Return full approval history ordered by submission round and creation time.
   listApprovals: (_proposalId) =>
     notImplemented("proposal.repository.listApprovals"),
 });

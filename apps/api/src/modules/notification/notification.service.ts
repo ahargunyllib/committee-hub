@@ -5,6 +5,7 @@ import {
   type ProposalStatusChangedEvent,
 } from "../../lib/events";
 import { logger } from "../../lib/logger";
+import { tryCatch } from "../../lib/try-catch";
 import type {
   CreateNotificationInput,
   ListNotificationsInput,
@@ -43,9 +44,16 @@ export const createNotificationService = ({
 }: CreateNotificationServiceContext): NotificationService => ({
   listNotifications: (input) => repository.listNotifications(input),
   createNotification: (input) => repository.createNotification(input),
+  // check notification belongs to user
+  // ignore already-read notifications or keep operation idempotent
+  // set read=true and readAt timestamp
   markAsRead: (notificationId, userId) =>
     repository.markAsRead(notificationId, userId),
+  // mark only unread notifications for this user
+  // return affected count for UI badge refresh
   markAllAsRead: (userId) => repository.markAllAsRead(userId),
+  // map proposal status to a user-facing notification type/message
+  // keep notification failure non-blocking for the originating workflow
   handleProposalStatusChanged: (payload) =>
     repository.createNotification({
       message: `Proposal ${payload.status.replaceAll("_", " ")}`,
@@ -54,6 +62,8 @@ export const createNotificationService = ({
       type: proposalNotificationTypeByStatus[payload.status],
       userId: payload.recipientUserId,
     }),
+  // map application decision to accepted/rejected notification
+  // keep referenceId pointed at committee_application
   handleCommitteeApplicationReviewed: (payload) =>
     repository.createNotification({
       message: `Committee application ${payload.status}`,
@@ -65,6 +75,8 @@ export const createNotificationService = ({
           : "application_rejected",
       userId: payload.recipientUserId,
     }),
+  // create registration success notification with registration reference
+  // future implementation may include ticket code in message metadata
   handleEventRegistrationCreated: (payload) =>
     repository.createNotification({
       message: "Event registration successful",
@@ -78,23 +90,33 @@ export const createNotificationService = ({
 export const registerNotificationListeners = (
   service: NotificationService
 ): void => {
-  appEvents.on("proposal.statusChanged", (payload) => {
-    service.handleProposalStatusChanged(payload).catch((error: unknown) => {
+  appEvents.on("proposal.statusChanged", async (payload) => {
+    const { error } = await tryCatch(
+      service.handleProposalStatusChanged(payload)
+    );
+
+    if (error) {
       logger.warn({ error }, "Notification listener failed");
-    });
+    }
   });
 
-  appEvents.on("committee.applicationReviewed", (payload) => {
-    service
-      .handleCommitteeApplicationReviewed(payload)
-      .catch((error: unknown) => {
-        logger.warn({ error }, "Notification listener failed");
-      });
+  appEvents.on("committee.applicationReviewed", async (payload) => {
+    const { error } = await tryCatch(
+      service.handleCommitteeApplicationReviewed(payload)
+    );
+
+    if (error) {
+      logger.warn({ error }, "Notification listener failed");
+    }
   });
 
-  appEvents.on("event.registrationCreated", (payload) => {
-    service.handleEventRegistrationCreated(payload).catch((error: unknown) => {
+  appEvents.on("event.registrationCreated", async (payload) => {
+    const { error } = await tryCatch(
+      service.handleEventRegistrationCreated(payload)
+    );
+
+    if (error) {
       logger.warn({ error }, "Notification listener failed");
-    });
+    }
   });
 };
