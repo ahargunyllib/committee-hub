@@ -5,7 +5,7 @@
 
 ## Context
 
-We needed an auth solution that handles sessions, JWT, and user management with minimal custom code, and that integrates cleanly with ElysiaJS and a React frontend.
+We needed an auth solution that handles Google OAuth, sessions, and user management with minimal custom code, and that integrates cleanly with ElysiaJS and a React frontend.
 
 ## Decision
 
@@ -17,7 +17,7 @@ No separate `packages/auth` workspace is created -- the two-app structure does n
 
 ## Alternatives Considered
 
-**Manual JWT implementation** - Full control but significant boilerplate: token issuance, refresh, revocation, session storage, and security considerations all need to be handled manually.
+**Manual JWT + OAuth implementation** - Full control but significant boilerplate for handling OAuth redirects, token exchange, session storage, and security considerations.
 
 **Lucia** - Solid library but lower-level than better-auth; requires more wiring.
 
@@ -27,5 +27,6 @@ No separate `packages/auth` workspace is created -- the two-app structure does n
 
 - Session management, token refresh, and basic user CRUD are handled out of the box.
 - The better-auth client gives the dashboard type-safe access to auth state and actions.
-- SIAKAD validation is implemented as a post-login hook in the auth module, not as a built-in better-auth feature.
+- On first OAuth login, a user record is created with `mahasiswa` as the default role.
+- Role upgrades are handled by the admin module, not better-auth itself.
 - better-auth stores session data in the PostgreSQL database alongside application data.

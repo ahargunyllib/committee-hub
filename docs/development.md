@@ -31,11 +31,11 @@ cp apps/dashboard/.env.example apps/dashboard/.env
 Fill in the required values. Key variables:
 
 `apps/api/.env`
--`DATABASE_URL` - PostgreSQL connection string (e.g., `postgresql://postgres:postgres@localhost:5432/committee_hub`)
-- `BETTER_AUTH_SECRET` - Random secret for better-auth
+- `DATABASE_URL` - PostgreSQL connection string (e.g., `postgresql://postgres:postgres@localhost:5432/committee_hub`)
+- `BETTER_AUTH_SECRET` - Random secret for better-auth (generate with `openssl rand -base64 32`)
 - `BETTER_AUTH_URL` - API base URL (e.g., `http://localhost:3000`)
-- `SIAKAD_MOCK` - Set to `true` for local development
-- `SIAKAD_API_URL` - Real SIAKAD endpoint (not needed when mock is on)
+- `GOOGLE_CLIENT_ID` - From Google Cloud Console OAuth credentials
+- `GOOGLE_CLIENT_SECRET` - From Google Cloud Console OAuth credentials
 
 `apps/dashboard/.env`
 - `VITE_API_URL` - API base URL (e.g., `http://localhost:3000`)

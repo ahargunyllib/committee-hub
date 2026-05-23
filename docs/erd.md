@@ -5,7 +5,7 @@ High-level description of the data model. No SQL; see Drizzle schemas in `apps/a
 ## Entities
 
 ### user
-Represents any person who can log in. Managed by better-auth. Has a `role` field that determines permissions (`mahasiswa`, `ketua_panitia`, `ormawa`, `fakultas`, `universitas`, `admin`).
+Represents any person who can log in via Google OAuth. Managed by better-auth. Has a `role` field that determines permissions (`mahasiswa`, `ketua_panitia`, `ormawa`, `fakultas`, `universitas`, `admin`). Default role on first login is `mahasiswa`.
 
 ### session
 better-auth session record linked to a user. Stores token and expiry.

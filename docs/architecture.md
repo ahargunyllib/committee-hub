@@ -60,14 +60,16 @@ Each module follows the `route → service → repository` pattern.
 
 ## Auth Flow
 
-1. User submits credentials to `POST /api/auth/sign-in`
-2. better-auth validates credentials against the database
-3. On successful login, SIAKAD is called to validate student status
-4. Session/token is returned to the client
+1. User clicks "Login with Google" on the dashboard
+2. better-auth handles the OAuth redirect and callback
+3. On first login, user is created with `mahasiswa` role by default
+4. Session is stored in the database and returned to the client
 5. All protected routes verify the session via better-auth middleware
+6. Admin can upgrade a user's role via the admin module
 
 The better-auth server instance lives in `apps/api/src/lib/auth.ts`.
 The client instance lives in `apps/dashboard/src/lib/auth.ts` and points to the API URL.
+Google OAuth credentials are configured in `apps/api/.env`.
 
 ## Notification Flow
 
@@ -79,12 +81,6 @@ Notifications are in-process and event-driven:
 4. The frontend polls or fetches the notification feed
 
 No external message broker is used. See [ADR 006](adrs/006-in-process-notifications.md).
-
-## SIAKAD Integration
-
-In development, `SIAKAD_MOCK=true` activates a mock client that returns hardcoded student data.
-In production, the real SIAKAD API URL is used.
-The interface is the same in both cases; only the implementation differs.
 
 ## Deployment
 

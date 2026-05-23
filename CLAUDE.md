@@ -28,7 +28,7 @@ Run from repo root unless noted.
 - **Backend** (`apps/api`): ElysiaJS + Drizzle ORM + PostgreSQL + better-auth
 - **Frontend** (`apps/dashboard`): Vite + React + TanStack Router + TanStack Query + shadcn/ui + Zustand + Zod
 - **Auth**: better-auth server lives in `apps/api/src/lib/auth.ts`, client in `apps/dashboard/src/lib/auth.ts`
-- **SIAKAD**: mock client behind `SIAKAD_MOCK` env flag in `apps/api/src/lib/siakad.ts`
+- **Auth**: Google OAuth via better-auth. After login, users get `mahasiswa` role by default. Admin upgrades roles manually.
 
 ## Module Structure (apps/api)
 
@@ -58,6 +58,7 @@ Modules: `auth`, `committee`, `proposal`, `event`, `notification`, `admin`
 
 - Do not add Redis or any external message broker; notifications are in-process.
 - Do not create a `packages/auth` workspace; auth server stays in `apps/api`.
+- Do not add email/password auth; Google OAuth is the only login method.
 - Do not bypass the service layer from a route handler.
 - Do not write raw SQL; use Drizzle query builder.
 - Do not commit `.env` files.
@@ -66,5 +67,5 @@ Modules: `auth`, `committee`, `proposal`, `event`, `notification`, `admin`
 
 See `apps/api/.env.example` and `apps/dashboard/.env.example` for required variables.
 
-Key API vars: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `SIAKAD_MOCK`, `SIAKAD_API_URL`
+Key API vars: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 Key dashboard vars: `VITE_API_URL`
