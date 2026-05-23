@@ -1,0 +1,12 @@
+{
+  "name": "dashboard",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "alchemy dev --app tedx-2026-dashboard",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}
