@@ -2,6 +2,7 @@
   "name": "committee-hub",
   "scripts": {
     "check": "ultracite check",
+    "dev": "bun --filter \"*\" dev",
     "fix": "ultracite fix",
     "prepare": "lefthook install",
     "typecheck": "bun --filter \"*\" typecheck",

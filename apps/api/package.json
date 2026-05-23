@@ -3,9 +3,25 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "dev": "bun run src/index.ts",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "drizzle-kit": "^0.31.10",
     "typescript": "catalog:"
+  },
+  "dependencies": {
+    "@elysia/cors": "^1.4.2",
+    "@elysia/openapi": "^1.4.15",
+    "better-auth": "^1.6.11",
+    "drizzle-orm": "^0.45.2",
+    "elysia": "^1.4.28",
+    "pino": "^10.3.1",
+    "postgres": "^3.4.9",
+    "zod": "^4.4.3"
   }
 }

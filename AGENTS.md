@@ -19,7 +19,7 @@ Run from repo root unless noted.
 | `bun --cwd apps/api db:generate` | Generate migration files |
 | `bun --cwd apps/api db:migrate` | Run migrations |
 | `bun --cwd apps/api db:studio` | Open Drizzle Studio |
-| `bun lint` | Lint all apps |
+| `bun fix` | Lint all apps |
 | `bun typecheck` | Type check all apps |
 
 ## Architecture
@@ -77,9 +77,9 @@ This project uses **Ultracite**, a zero-config preset that enforces strict code 
 
 ## Quick Reference
 
-- **Format code**: `bun x ultracite fix`
-- **Check for issues**: `bun x ultracite check`
-- **Diagnose setup**: `bun x ultracite doctor`
+- **Format code**: `bun fix`
+- **Check for issues**: `bun check`
+- **Diagnose setup**: `bunx ultracite doctor`
 
 Biome (the underlying engine) provides robust linting and formatting. Most issues are automatically fixable.
 
