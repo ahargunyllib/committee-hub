@@ -1,5 +1,6 @@
+import { eq } from "drizzle-orm";
 import type { DB } from "../../db";
-import { notImplemented } from "../../lib/stub";
+import { committeeApplicationTable, divisionTable } from "./committee.schema";
 import type { CommitteeApplication, Division } from "./committee.schema";
 
 export type CreateDivisionInput = {
@@ -22,6 +23,7 @@ export type ReviewCommitteeApplicationInput = {
   status: Extract<CommitteeApplication["status"], "accepted" | "rejected">;
 };
 
+// 1. Update the Type Definition here
 export type CommitteeRepository = {
   listDivisionsByEvent: (eventId: string) => Promise<Division[]>;
   createDivision: (input: CreateDivisionInput) => Promise<Division>;
@@ -39,25 +41,86 @@ export type CommitteeRepository = {
     applicationId: string,
     input: ReviewCommitteeApplicationInput
   ) => Promise<CommitteeApplication>;
+
+  // ---> NEWLY ADDED METHODS <---
+  getDivisionById: (divisionId: string) => Promise<Division | null>;
+  getApplicationById: (
+    applicationId: string
+  ) => Promise<CommitteeApplication | null>;
 };
 
-export const createCommitteeRepository = (_db: DB): CommitteeRepository => ({
-  // Read divisions owned by an event; event existence can be enforced by FK or checked for a better error.
-  listDivisionsByEvent: (_eventId) =>
-    notImplemented("committee.repository.listDivisionsByEvent"),
-  // Insert a division for an event and let the event/name unique index prevent duplicates.
-  createDivision: (_input) =>
-    notImplemented("committee.repository.createDivision"),
-  // Update mutable division fields while preserving the event boundary.
-  updateDivision: (_divisionId, _input) =>
-    notImplemented("committee.repository.updateDivision"),
-  // Insert an application and let the division/user unique index prevent duplicate applications.
-  createApplication: (_input) =>
-    notImplemented("committee.repository.createApplication"),
-  // List applicants for a division; join user details here if the review UI needs them.
-  listApplicationsByDivision: (_divisionId) =>
-    notImplemented("committee.repository.listApplicationsByDivision"),
-  // Update review status, reviewer, and timestamp in one write; service emits notification after success.
-  reviewApplication: (_applicationId, _input) =>
-    notImplemented("committee.repository.reviewApplication"),
+export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
+  // Read divisions owned by an event
+  listDivisionsByEvent: async (eventId) =>
+    db.select().from(divisionTable).where(eq(divisionTable.eventId, eventId)),
+
+  // Insert a division for an event
+  createDivision: async (input) => {
+    const [division] = await db.insert(divisionTable).values(input).returning();
+
+    return division;
+  },
+
+  // Update mutable division fields
+  updateDivision: async (divisionId, input) => {
+    const [division] = await db
+      .update(divisionTable)
+      .set(input)
+      .where(eq(divisionTable.id, divisionId))
+      .returning();
+
+    return division;
+  },
+
+  // Insert an application
+  createApplication: async (input) => {
+    const [application] = await db
+      .insert(committeeApplicationTable)
+      .values(input)
+      .returning();
+
+    return application;
+  },
+
+  // List applicants for a division
+  listApplicationsByDivision: async (divisionId) =>
+    db
+      .select()
+      .from(committeeApplicationTable)
+      .where(eq(committeeApplicationTable.divisionId, divisionId)),
+
+  // Update review status, reviewer, and timestamp in one write
+  reviewApplication: async (applicationId, input) => {
+    const [application] = await db
+      .update(committeeApplicationTable)
+      .set({
+        status: input.status,
+        reviewedById: input.reviewerId,
+        reviewedAt: new Date(),
+      })
+      .where(eq(committeeApplicationTable.id, applicationId))
+      .returning();
+
+    return application;
+  },
+
+  // 2. Add the Implementations here
+  // ---> NEWLY ADDED METHODS <---
+  getDivisionById: async (divisionId) => {
+    const [division] = await db
+      .select()
+      .from(divisionTable)
+      .where(eq(divisionTable.id, divisionId))
+      .limit(1);
+    return division ?? null;
+  },
+
+  getApplicationById: async (applicationId) => {
+    const [application] = await db
+      .select()
+      .from(committeeApplicationTable)
+      .where(eq(committeeApplicationTable.id, applicationId))
+      .limit(1);
+    return application ?? null;
+  },
 });
