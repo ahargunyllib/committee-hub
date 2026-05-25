@@ -27,6 +27,7 @@ const applyWorkerBindings = (bindings: ApiWorkerBindings): void => {
   process.env.DASHBOARD_URL = bindings.DASHBOARD_URL;
   process.env.GOOGLE_CLIENT_ID = bindings.GOOGLE_CLIENT_ID;
   process.env.GOOGLE_CLIENT_SECRET = bindings.GOOGLE_CLIENT_SECRET;
+  process.env.NODE_ENV = bindings.NODE_ENV;
   process.env.LOG_LEVEL = bindings.LOG_LEVEL;
 
   if (typeof bindings.PORT === "string") {
