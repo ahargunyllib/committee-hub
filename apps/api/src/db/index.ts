@@ -4,7 +4,8 @@ import { env } from "../env";
 import { schema } from "./schema";
 
 export const postgresClient = postgres(env.DATABASE_URL, {
-  max: env.NODE_ENV === "test" ? 1 : 10,
+  fetch_types: false,
+  max: env.NODE_ENV === "test" ? 1 : 5,
 });
 
 export const db = drizzle(postgresClient, {

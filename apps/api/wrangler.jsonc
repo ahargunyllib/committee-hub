@@ -13,7 +13,6 @@
       "BETTER_AUTH_SECRET",
       "BETTER_AUTH_URL",
       "DASHBOARD_URL",
-      "DATABASE_URL",
       "GOOGLE_CLIENT_ID",
       "GOOGLE_CLIENT_SECRET"
     ]
@@ -26,15 +25,12 @@
   ],
   "observability": {
     "enabled": true
-  }
-
-  // To use Cloudflare Hyperdrive instead of DATABASE_URL directly, create a
-  // Hyperdrive config and add the binding below. src/worker.ts will prefer
-  // HYPERDRIVE.connectionString when it is present.
-  // "hyperdrive": [
-  //   {
-  //     "binding": "HYPERDRIVE",
-  //     "id": "<your-hyperdrive-id>"
-  //   }
-  // ]
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "8ae48531e3774549a3f79e9852d671ba",
+      "localConnectionString": "postgresql://postgres:postgres@localhost:5432/committee_hub"
+    }
+  ]
 }

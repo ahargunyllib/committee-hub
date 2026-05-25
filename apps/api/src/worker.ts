@@ -6,8 +6,16 @@ type HyperdriveBinding = {
   connectionString: string;
 };
 
-type ApiWorkerBindings = Env & {
+type ApiWorkerBindings = {
+  BETTER_AUTH_SECRET: string;
+  BETTER_AUTH_URL: string;
+  DASHBOARD_URL: string;
+  DATABASE_URL?: string;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
   HYPERDRIVE?: HyperdriveBinding;
+  LOG_LEVEL?: "info";
+  NODE_ENV?: "production";
   PORT?: string;
 };
 
@@ -28,8 +36,14 @@ const applyWorkerBindings = (bindings: ApiWorkerBindings): void => {
   process.env.DASHBOARD_URL = bindings.DASHBOARD_URL;
   process.env.GOOGLE_CLIENT_ID = bindings.GOOGLE_CLIENT_ID;
   process.env.GOOGLE_CLIENT_SECRET = bindings.GOOGLE_CLIENT_SECRET;
-  process.env.NODE_ENV = bindings.NODE_ENV;
-  process.env.LOG_LEVEL = bindings.LOG_LEVEL;
+
+  if (bindings.NODE_ENV) {
+    process.env.NODE_ENV = bindings.NODE_ENV;
+  }
+
+  if (bindings.LOG_LEVEL) {
+    process.env.LOG_LEVEL = bindings.LOG_LEVEL;
+  }
 
   if (typeof bindings.PORT === "string") {
     process.env.PORT = bindings.PORT;
