@@ -112,5 +112,110 @@ C4Component
     UpdateRelStyle(com_service, notify_mod, $lineStyle="dashed")
 ```
 
+---
+
+## Level 4: Code Diagrams (UML Class Structure)
+
+Level 4 defines the internal code structure of the components. For a TypeScript-based modular API, this translates to the interfaces, data models, services, and repositories that execute the business logic.
+
+### 4a. Event Module Code Structure
+
+This class diagram illustrates the implementation details of the `Event` module, highlighting the specific methods that handle data transformation and ACID transactions.
+
+```mermaid
+classDiagram
+    direction TB
+
+    class EventRoute {
+        <<Elysia Plugin>>
+        +POST /events/
+        +PUT /events/:id
+        +POST /events/:id/register
+    }
+
+    class EventService {
+        <<Service Layer>>
+        +createEvent(input)
+        +updateEvent(eventId, input)
+        +registerParticipant(eventId, userId)
+    }
+
+    class EventRepository {
+        <<Drizzle Access Data>>
+        +createEvent(input): Event
+        +updateEvent(eventId, input): Event
+        +createRegistration(eventId, userId): Registration
+    }
+
+    class EventModel {
+        <<Drizzle Schema>>
+        +String id
+        +String name
+        +Date date
+        +Number quota
+        +String status
+    }
+
+    class RegistrationModel {
+        <<Drizzle Schema>>
+        +String id
+        +String eventId
+        +String userId
+    }
+
+    EventRoute --> EventService : validates & routes to
+    EventService --> EventRepository : applies business rules & calls
+    EventRepository ..> EventModel : manages
+    EventRepository ..> RegistrationModel : manages & queries
+```
+
+```mermaid
+classDiagram
+    direction TB
+
+    class CommitteeRoute {
+        <<Elysia Plugin>>
+        +POST /committee/divisions
+        +PUT /committee/divisions/:id
+        +POST /committee/applications
+        +POST /committee/applications/:id/review
+    }
+
+    class CommitteeService {
+        <<Service Layer>>
+        +createDivision(input)
+        +updateDivision(divisionId, input)
+        +createApplication(input)
+        +reviewApplication(applicationId, input)
+    }
+
+    class CommitteeRepository {
+        <<Drizzle Access Data>>
+        +createDivision(input): Division
+        +updateDivision(divisionId, input): Division
+        +createApplication(input): CommitteeApplication
+        +reviewApplication(applicationId, input): CommitteeApplication
+    }
+
+    class DivisionModel {
+        <<Drizzle Schema>>
+        +String id
+        +String name
+        +Number quota
+    }
+
+    class CommitteeApplicationModel {
+        <<Drizzle Schema>>
+        +String id
+        +String divisionId
+        +String userId
+        +String status
+    }
+
+    CommitteeRoute --> CommitteeService : validates & routes to
+    CommitteeService --> CommitteeRepository : applies business rules & calls
+    CommitteeRepository ..> DivisionModel : manages
+    CommitteeRepository ..> CommitteeApplicationModel : manages & queries
+```
 
 
