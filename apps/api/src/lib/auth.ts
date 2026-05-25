@@ -1,7 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { openAPI } from "better-auth/plugins";
-import { env } from "../env";
 import { db } from "../db";
 import {
   accountTable,
@@ -9,7 +8,7 @@ import {
   userTable,
   verificationTable,
 } from "../db/auth.schema";
-import { runAuthBackgroundTask } from "./background-tasks";
+import { env } from "../env";
 import { createId } from "./id";
 
 export const auth = betterAuth({
@@ -73,9 +72,6 @@ export const auth = betterAuth({
     },
   },
   advanced: {
-    backgroundTasks: {
-      handler: runAuthBackgroundTask,
-    },
     defaultCookieAttributes: {
       httpOnly: true,
       sameSite: env.NODE_ENV === "production" ? "none" : "lax",
