@@ -1,10 +1,15 @@
 import { FileEditIcon } from "@hugeicons/core-free-icons";
 
-import { EmptyState } from "@/components/shared/empty-state";
-import { StatusBadge } from "@/components/shared/status-badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/shared/components/empty-state";
+import { StatusBadge } from "@/shared/components/status-badge";
+import { Button } from "@/shared/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { formatDateTime } from "@/shared/lib/format";
 import { titleCase } from "@/shared/lib/string";
 

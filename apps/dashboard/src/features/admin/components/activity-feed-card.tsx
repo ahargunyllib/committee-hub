@@ -1,8 +1,13 @@
 import { Activity03Icon } from "@hugeicons/core-free-icons";
 
-import { EmptyState } from "@/components/shared/empty-state";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/shared/components/empty-state";
+import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { formatRelative } from "@/shared/lib/format";
 import { getInitials } from "@/shared/lib/string";
 import type { ActivityEntry } from "@/shared/lib/types";

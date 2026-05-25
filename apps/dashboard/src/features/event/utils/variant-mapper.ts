@@ -1,4 +1,4 @@
-import type { StatusVariant } from "@/components/shared/status-badge";
+import type { StatusVariant } from "@/shared/components/status-badge";
 import type {
   ApplicationStatus,
   EventStatus,

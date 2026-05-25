@@ -6,9 +6,9 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 
-import { StatusBadge } from "@/components/shared/status-badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { StatusBadge } from "@/shared/components/status-badge";
+import { Button } from "@/shared/components/ui/button";
+import { Card } from "@/shared/components/ui/card";
 import { formatDate, formatRelative } from "@/shared/lib/format";
 import { canAccess, RESOURCES } from "@/shared/lib/permissions";
 import type { Event } from "@/shared/lib/types";

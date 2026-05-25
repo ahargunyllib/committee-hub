@@ -1,5 +1,8 @@
-import { Badge } from "@/components/ui/badge";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Badge } from "@/shared/components/ui/badge";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/shared/components/ui/toggle-group";
 
 import {
   type NotificationsTab,

@@ -1,6 +1,6 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 import type { NotificationTone } from "../utils/notification-meta";
 import { NOTIFICATION_META } from "../utils/notification-meta";

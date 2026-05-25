@@ -1,13 +1,13 @@
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@/shared/components/ui/badge";
+import { Label } from "@/shared/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { StatusBadge } from "@/components/shared/status-badge";
+} from "@/shared/components/ui/select";
+import { StatusBadge } from "@/shared/components/status-badge";
 
 import { useNonClosedEvents } from "../hooks/use-non-closed-events";
 import { useSelectedEventStore } from "../stores/use-selected-event-store";

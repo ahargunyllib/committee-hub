@@ -1,13 +1,13 @@
 import { useNavigate } from "@tanstack/react-router";
 
-import { RoleBadge } from "@/components/shared/role-badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { RoleBadge } from "@/shared/components/role-badge";
+import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/shared/components/ui/dropdown-menu";
 import { authClient, type SessionUser } from "@/shared/lib/auth";
 import { getInitials } from "@/shared/lib/string";
 

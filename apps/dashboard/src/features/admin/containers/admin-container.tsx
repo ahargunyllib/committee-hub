@@ -1,6 +1,10 @@
-import { PageHeader } from "@/components/shared/page-header";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/shared/components/page-header";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/shared/components/ui/alert";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 import { ActivityFeedCard } from "../components/activity-feed-card";
 import { AdminStatTiles } from "../components/admin-stat-tiles";

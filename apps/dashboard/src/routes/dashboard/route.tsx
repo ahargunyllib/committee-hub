@@ -6,7 +6,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 
-import { Separator } from "../../components/ui/separator";
+import { Separator } from "../../shared/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +16,7 @@ import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "../../components/ui/sidebar";
+} from "../../shared/components/ui/sidebar";
 import { AppLogo } from "../../shared/components/app-logo";
 import { SidebarNavItems } from "../../shared/components/sidebar-nav-items";
 import { TopbarSearch } from "../../shared/components/topbar-search";

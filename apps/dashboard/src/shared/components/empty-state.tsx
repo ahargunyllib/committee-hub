@@ -1,6 +1,6 @@
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 
 export function EmptyState({
   action,

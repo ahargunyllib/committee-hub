@@ -4,9 +4,9 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
-import { StatusBadge } from "@/components/shared/status-badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/shared/components/status-badge";
+import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import { Button } from "@/shared/components/ui/button";
 import { formatRelative } from "@/shared/lib/format";
 import { getInitials } from "@/shared/lib/string";
 import type { CommitteeApplication } from "@/shared/lib/types";

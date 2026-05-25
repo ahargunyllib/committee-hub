@@ -1,4 +1,4 @@
-import { StatTile } from "@/components/shared/stat-tile";
+import { StatTile } from "@/shared/components/stat-tile";
 
 import type { OverviewData } from "../hooks/use-overview-data";
 

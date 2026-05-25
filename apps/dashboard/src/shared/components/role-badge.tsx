@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/shared/components/ui/badge";
 import { isUserRole } from "@/shared/lib/permissions";
 import type { UserRole } from "@/shared/lib/types";
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 
 import { ApplyDialog } from "./apply-dialog";
 

@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/shared/components/ui/button";
+import { Label } from "@/shared/components/ui/label";
+import { Textarea } from "@/shared/components/ui/textarea";
 import type { ProposalDecision, ProposalScope } from "@/shared/lib/types";
 
 import { useReviewProposal } from "../hooks/use-review-proposal";

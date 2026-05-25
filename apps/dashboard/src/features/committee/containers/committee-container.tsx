@@ -3,11 +3,15 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
-import { EmptyState } from "@/components/shared/empty-state";
-import { PageHeader } from "@/components/shared/page-header";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/shared/components/empty-state";
+import { PageHeader } from "@/shared/components/page-header";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/shared/components/ui/alert";
+import { Button } from "@/shared/components/ui/button";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useSession } from "@/shared/lib/auth";
 
 import { CreateDivisionDialog } from "../components/create-division-dialog";

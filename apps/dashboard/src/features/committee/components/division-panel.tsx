@@ -1,9 +1,9 @@
 import { UserGroupIcon } from "@hugeicons/core-free-icons";
 import type { ReactNode } from "react";
 
-import { EmptyState } from "@/components/shared/empty-state";
-import { StatusBadge } from "@/components/shared/status-badge";
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/shared/components/empty-state";
+import { StatusBadge } from "@/shared/components/status-badge";
+import { Badge } from "@/shared/components/ui/badge";
 import {
   Card,
   CardAction,
@@ -11,7 +11,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/shared/components/ui/card";
 import type { CommitteeApplication, Division } from "@/shared/lib/types";
 
 import { applicationStatusVariant } from "../utils/variant-mapper";

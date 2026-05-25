@@ -1,10 +1,10 @@
 import { FileEditIcon } from "@hugeicons/core-free-icons";
 
-import { EmptyState } from "@/components/shared/empty-state";
-import { StatusBadge } from "@/components/shared/status-badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { EmptyState } from "@/shared/components/empty-state";
+import { StatusBadge } from "@/shared/components/status-badge";
+import { Button } from "@/shared/components/ui/button";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { cn } from "@/shared/lib/utils";
 import { formatRelative } from "@/shared/lib/format";
 import { titleCase } from "@/shared/lib/string";
 import type { Proposal } from "@/shared/lib/types";

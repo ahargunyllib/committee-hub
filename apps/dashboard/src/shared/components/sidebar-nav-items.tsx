@@ -9,12 +9,12 @@ import {
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { Link, useRouterState } from "@tanstack/react-router";
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/shared/components/ui/badge";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from "@/shared/components/ui/sidebar";
 import { useNotificationsCount } from "@/features/notification/hooks/use-notifications-count";
 import { canAccess, RESOURCES, type Resource } from "@/shared/lib/permissions";
 

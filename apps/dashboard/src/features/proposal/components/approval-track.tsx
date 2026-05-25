@@ -1,7 +1,7 @@
-import { StatusBadge } from "@/components/shared/status-badge";
-import type { StatusVariant } from "@/components/shared/status-badge";
-import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { StatusBadge } from "@/shared/components/status-badge";
+import type { StatusVariant } from "@/shared/components/status-badge";
+import { Card } from "@/shared/components/ui/card";
+import { cn } from "@/shared/lib/utils";
 import { titleCase } from "@/shared/lib/string";
 import type { ProposalApproval, ProposalScope } from "@/shared/lib/types";
 

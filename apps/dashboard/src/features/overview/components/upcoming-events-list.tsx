@@ -1,9 +1,14 @@
 import { Location01Icon, UserGroupIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
-import { EmptyState } from "@/components/shared/empty-state";
-import { StatusBadge } from "@/components/shared/status-badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/shared/components/empty-state";
+import { StatusBadge } from "@/shared/components/status-badge";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { formatDateChip } from "@/shared/lib/format";
 import type { Event } from "@/shared/lib/types";
 

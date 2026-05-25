@@ -3,9 +3,9 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
-import { PageHeader } from "@/components/shared/page-header";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/shared/components/page-header";
+import { Button } from "@/shared/components/ui/button";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { CreateEventDialog } from "@/features/event/components/create-event-dialog";
 import { canAccess, RESOURCES } from "@/shared/lib/permissions";
 import { useSession } from "@/shared/lib/auth";

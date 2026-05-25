@@ -1,7 +1,7 @@
 import type { ComponentProps, ReactNode } from "react";
 
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { Label } from "@/shared/components/ui/label";
+import { cn } from "@/shared/lib/utils";
 
 function Form({ className, ...props }: ComponentProps<"form">) {
   return <form className={cn("space-y-4", className)} {...props} />;

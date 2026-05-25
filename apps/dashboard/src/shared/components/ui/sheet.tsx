@@ -3,8 +3,8 @@
 import type * as React from "react";
 import { Dialog as SheetPrimitive } from "radix-ui";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/shared/lib/utils";
+import { Button } from "@/shared/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 

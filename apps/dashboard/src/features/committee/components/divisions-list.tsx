@@ -1,15 +1,15 @@
 import { UserGroupIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
-import { EmptyState } from "@/components/shared/empty-state";
+import { EmptyState } from "@/shared/components/empty-state";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+} from "@/shared/components/ui/card";
+import { cn } from "@/shared/lib/utils";
 import { formatRelative } from "@/shared/lib/format";
 import type { Division } from "@/shared/lib/types";
 

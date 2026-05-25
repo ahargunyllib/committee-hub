@@ -1,8 +1,11 @@
 import { Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
-import { Input } from "@/components/ui/input";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Input } from "@/shared/components/ui/input";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/shared/components/ui/toggle-group";
 
 import {
   isProposalScopeFilter,
