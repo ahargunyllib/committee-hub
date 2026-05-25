@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardProposalsRouteImport } from './routes/dashboard/proposals'
@@ -20,11 +19,6 @@ import { Route as DashboardCommitteeRouteImport } from './routes/dashboard/commi
 import { Route as DashboardAdminRouteImport } from './routes/dashboard/admin'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -74,7 +68,6 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/about': typeof AboutRoute
   '/auth/login': typeof AuthLoginRoute
   '/dashboard/admin': typeof DashboardAdminRoute
   '/dashboard/committee': typeof DashboardCommitteeRoute
@@ -86,7 +79,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/about': typeof AboutRoute
   '/auth/login': typeof AuthLoginRoute
   '/dashboard/admin': typeof DashboardAdminRoute
   '/dashboard/committee': typeof DashboardCommitteeRoute
@@ -99,7 +91,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/about': typeof AboutRoute
   '/auth/login': typeof AuthLoginRoute
   '/dashboard/admin': typeof DashboardAdminRoute
   '/dashboard/committee': typeof DashboardCommitteeRoute
@@ -113,7 +104,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
-    | '/about'
     | '/auth/login'
     | '/dashboard/admin'
     | '/dashboard/committee'
@@ -125,7 +115,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
-    | '/about'
     | '/auth/login'
     | '/dashboard/admin'
     | '/dashboard/committee'
@@ -137,7 +126,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
-    | '/about'
     | '/auth/login'
     | '/dashboard/admin'
     | '/dashboard/committee'
@@ -150,19 +138,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
-  AboutRoute: typeof AboutRoute
   AuthLoginRoute: typeof AuthLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -254,7 +234,6 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
-  AboutRoute: AboutRoute,
   AuthLoginRoute: AuthLoginRoute,
 }
 export const routeTree = rootRouteImport
