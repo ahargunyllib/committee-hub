@@ -185,7 +185,7 @@ function DashboardLayout() {
       <SidebarInset className="[--header-height:4rem]">
         <header className="sticky top-0 z-10 flex h-(--header-height) shrink-0 items-center gap-3 border-b bg-background/85 px-4 backdrop-blur">
           <SidebarTrigger className="size-9" />
-          <Separator orientation="vertical" className="data-[orientation=vertical]:h-6" />
+          <Separator orientation="vertical" className="h-6 w-px" />
           <Breadcrumb />
           <div className="ml-auto flex items-center gap-3">
             <TopbarSearch />
