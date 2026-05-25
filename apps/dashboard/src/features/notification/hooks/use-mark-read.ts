@@ -6,15 +6,14 @@ import type { Notification } from "@/shared/lib/types";
 
 type MarkReadInput = {
   id: string;
-  userId: string;
 };
 
 export function useMarkRead() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, userId }: MarkReadInput) =>
-      api.patch<Notification>(`/notifications/${id}/read`, { userId }),
+    mutationFn: ({ id }: MarkReadInput) =>
+      api.patch<Notification>(`/notifications/${id}/read`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       toast.success("Notification marked read");

@@ -33,8 +33,7 @@ export function useOverviewData(userId: string | undefined) {
           enabled: !!userId,
           queryFn: () =>
             api.get<Notification[]>("/notifications", {
-              read: "false",
-              userId: userId ?? "",
+              read: false,
             }),
           queryKey: ["notifications", "list", { read: false, userId }],
         },

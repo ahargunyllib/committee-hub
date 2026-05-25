@@ -25,9 +25,9 @@ Phase 0-8 done.
 
 ## API Endpoints
 
-- `GET /notifications?userId=&read=`
-- `PATCH /notifications/:id/read` body `{ userId }`
-- `PATCH /notifications/read-all` body `{ userId }`
+- `GET /notifications?read=` (uses authenticated session user)
+- `PATCH /notifications/:id/read` (uses authenticated session user)
+- `PATCH /notifications/read-all` (uses authenticated session user)
 
 ## Folder Structure
 
@@ -106,7 +106,7 @@ export function NotificationsContainer() {
           <Button
             variant="ghost"
             disabled={unreadCount === 0 || markAll.isPending}
-            onClick={() => markAll.mutate({ userId: user.id })}
+            onClick={() => markAll.mutate()}
           >
             Mark all read
           </Button>
@@ -126,7 +126,7 @@ export function NotificationsContainer() {
           />
         ) : (
           <ul className="divide-y">
-            {items?.map((n) => <NotificationRow key={n.id} notification={n} userId={user.id} />)}
+            {items?.map((n) => <NotificationRow key={n.id} notification={n} />)}
           </ul>
         )}
       </Card>
@@ -164,7 +164,7 @@ import { NOTIFICATION_META, notificationLabel } from "../utils/notification-meta
 import { formatRelative } from "@/shared/lib/format";
 import { useMarkRead } from "../hooks/use-mark-read";
 
-export function NotificationRow({ notification, userId }) {
+export function NotificationRow({ notification }) {
   const meta = NOTIFICATION_META[notification.type];
   const mark = useMarkRead();
 
@@ -194,7 +194,7 @@ export function NotificationRow({ notification, userId }) {
       <div className="flex flex-col items-end gap-1">
         <span className="text-xs text-muted-foreground">{formatRelative(notification.createdAt)}</span>
         {!notification.read ? (
-          <Button size="sm" variant="ghost" onClick={() => mark.mutate({ id: notification.id, userId })}>
+          <Button size="sm" variant="ghost" onClick={() => mark.mutate({ id: notification.id })}>
             Mark read
           </Button>
         ) : (
@@ -213,7 +213,6 @@ export function useNotificationsList(userId: string | undefined, read?: boolean)
   return useQuery({
     queryKey: ["notifications", "list", { userId, read }],
     queryFn: () => api.get<Notification[]>("/notifications", {
-      userId: userId ?? "",
       ...(read !== undefined ? { read: String(read) } : {}),
     }),
     enabled: !!userId,
@@ -239,8 +238,8 @@ export function useNotificationsCount() {
 export function useMarkRead() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, userId }: { id: string; userId: string }) =>
-      api.patch(`/notifications/${id}/read`, { userId }),
+    mutationFn: ({ id }: { id: string }) =>
+      api.patch(`/notifications/${id}/read`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
   });
 }
@@ -248,8 +247,7 @@ export function useMarkRead() {
 export function useMarkAllRead() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ userId }: { userId: string }) =>
-      api.patch(`/notifications/read-all`, { userId }),
+    mutationFn: () => api.patch(`/notifications/read-all`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
   });
 }

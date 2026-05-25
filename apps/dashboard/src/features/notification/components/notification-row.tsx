@@ -12,13 +12,9 @@ import { NotificationIcon } from "./notification-icon";
 
 type NotificationRowProps = {
   notification: Notification;
-  userId: string;
 };
 
-export function NotificationRow({
-  notification,
-  userId,
-}: NotificationRowProps) {
+export function NotificationRow({ notification }: NotificationRowProps) {
   const markRead = useMarkRead();
 
   return (
@@ -57,7 +53,7 @@ export function NotificationRow({
           <Button
             disabled={markRead.isPending}
             onClick={() => {
-              markRead.mutate({ id: notification.id, userId });
+              markRead.mutate({ id: notification.id });
             }}
             size="sm"
             type="button"

@@ -69,11 +69,7 @@ export function NotificationsContainer() {
     listContent = (
       <ul className="divide-y">
         {items.map((notification) => (
-          <NotificationRow
-            key={notification.id}
-            notification={notification}
-            userId={user.id}
-          />
+          <NotificationRow key={notification.id} notification={notification} />
         ))}
       </ul>
     );
@@ -86,7 +82,7 @@ export function NotificationsContainer() {
           <Button
             disabled={unreadCount === 0 || markAllRead.isPending}
             onClick={() => {
-              markAllRead.mutate({ userId: user.id });
+              markAllRead.mutate();
             }}
             type="button"
             variant="ghost"

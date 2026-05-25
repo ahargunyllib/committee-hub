@@ -11,7 +11,6 @@ export function useNotificationsCount(): number {
     queryKey: ["notifications", "list", { userId, read: false }],
     queryFn: () =>
       api.get<Notification[]>("/notifications", {
-        userId: userId ?? "",
         read: false,
       }),
     enabled: Boolean(userId),

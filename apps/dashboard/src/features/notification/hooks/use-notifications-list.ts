@@ -11,7 +11,6 @@ export function useNotificationsList(
     queryKey: ["notifications", "list", { userId, read }],
     queryFn: () =>
       api.get<Notification[]>("/notifications", {
-        userId: userId ?? "",
         read,
       }),
     enabled: Boolean(userId),

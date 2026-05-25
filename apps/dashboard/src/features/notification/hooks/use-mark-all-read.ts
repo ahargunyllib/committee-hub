@@ -3,16 +3,11 @@ import { toast } from "sonner";
 
 import { api } from "@/shared/lib/api";
 
-type MarkAllReadInput = {
-  userId: string;
-};
-
 export function useMarkAllRead() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ userId }: MarkAllReadInput) =>
-      api.patch<void>("/notifications/read-all", { userId }),
+    mutationFn: () => api.patch<void>("/notifications/read-all"),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       toast.success("All notifications marked read");
