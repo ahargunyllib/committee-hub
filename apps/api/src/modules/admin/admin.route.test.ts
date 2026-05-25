@@ -65,8 +65,12 @@ const activityFixture = (
   createdAt: now,
   id: "act_1",
   metadata: JSON.stringify({ role: "ormawa" }),
+  target: "user:usr_target",
   targetId: "usr_target",
   targetType: "user",
+  userId: "usr_admin",
+  userName: "Admin User",
+  verb: "updated user role",
   ...override,
 });
 

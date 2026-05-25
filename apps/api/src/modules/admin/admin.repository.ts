@@ -18,7 +18,12 @@ export type UpsertSystemConfigInput = {
   valueType: SystemConfig["valueType"];
 };
 
-export type ActivityLogEntry = AdminActivityLog;
+export type ActivityLogEntry = AdminActivityLog & {
+  target: string;
+  userId: string;
+  userName: string | null;
+  verb: string;
+};
 
 export type AdminRepository = {
   listUsers: () => Promise<User[]>;
@@ -39,6 +44,14 @@ const firstOrNotFound = <T>(rows: T[], message: string): T => {
 
   return row;
 };
+
+const activityVerbByAction: Record<string, string> = {
+  "admin.system_config_upserted": "updated system config",
+  "admin.user_role_updated": "updated user role",
+};
+
+const toActivityVerb = (action: string): string =>
+  activityVerbByAction[action] ?? action.replaceAll(".", " ");
 
 export const createAdminRepository = (db: DB): AdminRepository => ({
   // Read Better Auth users for admin management; userTable is shared auth infrastructure, not a business service.
@@ -131,9 +144,27 @@ export const createAdminRepository = (db: DB): AdminRepository => ({
     return rows;
   },
   // Return the newest admin actions first for activity monitoring.
-  listActivity: () =>
-    db
-      .select()
+  listActivity: async () => {
+    const rows = await db
+      .select({
+        action: adminActivityLogTable.action,
+        actorUserId: adminActivityLogTable.actorUserId,
+        createdAt: adminActivityLogTable.createdAt,
+        id: adminActivityLogTable.id,
+        metadata: adminActivityLogTable.metadata,
+        targetId: adminActivityLogTable.targetId,
+        targetType: adminActivityLogTable.targetType,
+        userName: userTable.name,
+      })
       .from(adminActivityLogTable)
-      .orderBy(desc(adminActivityLogTable.createdAt)),
+      .leftJoin(userTable, eq(adminActivityLogTable.actorUserId, userTable.id))
+      .orderBy(desc(adminActivityLogTable.createdAt));
+
+    return rows.map((row) => ({
+      ...row,
+      target: `${row.targetType}:${row.targetId}`,
+      userId: row.actorUserId,
+      verb: toActivityVerb(row.action),
+    }));
+  },
 });
