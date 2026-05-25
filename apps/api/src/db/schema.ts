@@ -1,5 +1,7 @@
 // biome-ignore-all lint/performance/noBarrelFile: Drizzle Kit requires exported table bindings from this schema entrypoint.
 import {
+  adminActivityLogRelations,
+  adminActivityLogTable,
   systemConfigRelations,
   systemConfigTable,
   systemConfigValueTypeEnum,
@@ -49,6 +51,8 @@ import {
 } from "../modules/proposal/proposal.schema";
 
 export {
+  adminActivityLogRelations,
+  adminActivityLogTable,
   systemConfigRelations,
   systemConfigTable,
   systemConfigValueTypeEnum,
@@ -100,6 +104,8 @@ export {
 export const schema = {
   accountRelations,
   accountTable,
+  adminActivityLogRelations,
+  adminActivityLogTable,
   committeeApplicationRelations,
   committeeApplicationStatusEnum,
   committeeApplicationTable,

@@ -1,4 +1,6 @@
 import { Elysia, t } from "elysia";
+import { auth } from "../../lib/auth";
+import { AppError } from "../../lib/errors";
 import type { ProposalService } from "./proposal.service";
 
 const proposalScope = t.Union([
@@ -20,11 +22,28 @@ const proposalDecision = t.Union([
   t.Literal("revision_requested"),
 ]);
 
+const requireAuthenticatedSession = async (
+  headers: Headers
+): Promise<string> => {
+  const authSession = await auth.api.getSession({
+    headers,
+  });
+
+  if (!authSession) {
+    throw new AppError("UNAUTHORIZED", "Authentication is required");
+  }
+
+  return authSession.user.id;
+};
+
 export const createProposalRoutes = (proposalService: ProposalService) =>
   new Elysia({
     name: "proposal-routes",
     prefix: "/proposals",
   })
+    .derive(async ({ request }) => ({
+      actorUserId: await requireAuthenticatedSession(request.headers),
+    }))
     .get("/", ({ query }) => proposalService.listProposals(query), {
       query: t.Object({
         scope: t.Optional(proposalScope),
@@ -36,20 +55,27 @@ export const createProposalRoutes = (proposalService: ProposalService) =>
         tags: ["Proposal"],
       },
     })
-    .post("/", ({ body }) => proposalService.createProposal(body), {
-      body: t.Object({
-        description: t.Optional(t.String()),
-        documentUrl: t.Optional(t.String()),
-        eventId: t.String(),
-        scope: proposalScope,
-        submittedById: t.String(),
-        title: t.String(),
-      }),
-      detail: {
-        summary: "Create a proposal",
-        tags: ["Proposal"],
-      },
-    })
+    .post(
+      "/",
+      ({ actorUserId, body }) =>
+        proposalService.createProposal({
+          ...body,
+          submittedById: actorUserId,
+        }),
+      {
+        body: t.Object({
+          description: t.Optional(t.String()),
+          documentUrl: t.Optional(t.String()),
+          eventId: t.String(),
+          scope: proposalScope,
+          title: t.String(),
+        }),
+        detail: {
+          summary: "Create a proposal",
+          tags: ["Proposal"],
+        },
+      }
+    )
     .get(
       "/:proposalId",
       ({ params }) => proposalService.getProposalById(params.proposalId),
@@ -65,8 +91,8 @@ export const createProposalRoutes = (proposalService: ProposalService) =>
     )
     .patch(
       "/:proposalId",
-      ({ body, params }) =>
-        proposalService.updateProposal(params.proposalId, body),
+      ({ actorUserId, body, params }) =>
+        proposalService.updateProposal(params.proposalId, actorUserId, body),
       {
         params: t.Object({
           proposalId: t.String(),
@@ -85,7 +111,8 @@ export const createProposalRoutes = (proposalService: ProposalService) =>
     )
     .post(
       "/:proposalId/submit",
-      ({ params }) => proposalService.submitProposal(params.proposalId),
+      ({ actorUserId, params }) =>
+        proposalService.submitProposal(params.proposalId, actorUserId),
       {
         params: t.Object({
           proposalId: t.String(),
@@ -98,8 +125,11 @@ export const createProposalRoutes = (proposalService: ProposalService) =>
     )
     .post(
       "/:proposalId/reviews",
-      ({ body, params }) =>
-        proposalService.reviewProposal(params.proposalId, body),
+      ({ actorUserId, body, params }) =>
+        proposalService.reviewProposal(params.proposalId, {
+          ...body,
+          reviewerId: actorUserId,
+        }),
       {
         params: t.Object({
           proposalId: t.String(),
@@ -108,7 +138,6 @@ export const createProposalRoutes = (proposalService: ProposalService) =>
           decision: proposalDecision,
           level: proposalScope,
           notes: t.Optional(t.String()),
-          reviewerId: t.String(),
         }),
         detail: {
           summary: "Review a proposal",
