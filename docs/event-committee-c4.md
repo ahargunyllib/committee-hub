@@ -52,49 +52,63 @@ The Component diagram dives directly into the internal architectural patterns of
 
 ```mermaid
 C4Component
-    title Component Diagram: Event & Committee Modules
+    title Component Diagram: Event Module
 
-    Container(dashboard, "Frontend Dashboard", "React", "Client application making HTTP requests")
+    Container(dashboard, "Frontend Dashboard", "React", "Client application")
+    ContainerDb(db, "PostgreSQL Database", "Drizzle Schema", "Shared database")
 
     Container_Boundary(api, "API Application (apps/api)") {
         
         Boundary(event_mod, "Event Module") {
-            Component(event_route, "Event Routes", "ElysiaJS", "HTTP endpoints for event CRUD, participant registration, and ticketing.")
-            Component(event_service, "Event Service", "TypeScript", "Business rules for event limits, ticket issuance, and registration logic.")
-            Component(event_repo, "Event Repository", "Drizzle ORM", "Executes queries against event, registration, and ticket tables.")
+            Component(event_route, "Event Routes", "ElysiaJS", "Endpoints for event CRUD, registration, and ticketing.")
+            Component(event_service, "Event Service", "TypeScript", "Business rules, event limits, and logical routing.")
+            Component(event_repo, "Event Repository", "Drizzle ORM", "ACID transactions for event, registration, and ticket tables.")
         }
 
-        Boundary(com_mod, "Committee Module") {
-            Component(com_route, "Committee Routes", "ElysiaJS", "HTTP endpoints for division creation, applicant submissions, and selection.")
-            Component(com_service, "Committee Service", "TypeScript", "Business rules for division quotas and application state transitions.")
-            Component(com_repo, "Committee Repository", "Drizzle ORM", "Executes queries against division and committee_application tables.")
-        }
-
-        Component(notify_mod, "Notification Module", "Node EventEmitter", "In-process listener for system events.")
+        Component(notify_mod, "Notification Module", "Node EventEmitter", "Background listener.")
     }
-
-    ContainerDb(db, "PostgreSQL Database", "Drizzle Schema", "Shared DB with cross-module foreign keys.")
 
     %% External Interactions
     Rel(dashboard, event_route, "Registers for event", "JSON/HTTPS")
-    Rel(dashboard, com_route, "Applies to division / Reviews applicants", "JSON/HTTPS")
 
     %% Internal Event Flow
     Rel(event_route, event_service, "Calls")
     Rel(event_service, event_repo, "Calls")
-    Rel(event_repo, db, "Reads/Writes (event, registration, ticket)")
+    Rel(event_repo, db, "Reads/Writes")
+
+    %% In-Process Side Effects (Notifications)
+    Rel(event_service, notify_mod, "Emits 'event.registrationCreated'")
+    UpdateRelStyle(event_service, notify_mod, $lineStyle="dashed")
+```
+
+```mermaid
+C4Component
+    title Component Diagram: Committee Module
+
+    Container(dashboard, "Frontend Dashboard", "React", "Client application")
+    ContainerDb(db, "PostgreSQL Database", "Drizzle Schema", "Shared database")
+
+    Container_Boundary(api, "API Application (apps/api)") {
+
+        Boundary(com_mod, "Committee Module") {
+            Component(com_route, "Committee Routes", "ElysiaJS", "Endpoints for division creation, applications, and reviews.")
+            Component(com_service, "Committee Service", "TypeScript", "Business rules for division quotas and application states.")
+            Component(com_repo, "Committee Repository", "Drizzle ORM", "ACID transactions for division and application tables.")
+        }
+
+        Component(notify_mod, "Notification Module", "Node EventEmitter", "Background listener.")
+    }
+
+    %% External Interactions
+    Rel(dashboard, com_route, "Applies to division / Reviews applicants", "JSON/HTTPS")
 
     %% Internal Committee Flow
     Rel(com_route, com_service, "Calls")
     Rel(com_service, com_repo, "Calls")
-    Rel(com_repo, db, "Reads/Writes (division, committee_application)")
+    Rel(com_repo, db, "Reads/Writes")
 
     %% In-Process Side Effects (Notifications)
-    Rel(event_service, notify_mod, "Emits 'registration.success'")
-    Rel(com_service, notify_mod, "Emits 'application.accepted' / 'application.rejected'")
-    
-    %% Implicit DB rule representation
-    UpdateRelStyle(event_service, notify_mod, $lineStyle="dashed")
+    Rel(com_service, notify_mod, "Emits 'committee.applicationReviewed'")
     UpdateRelStyle(com_service, notify_mod, $lineStyle="dashed")
 ```
 
