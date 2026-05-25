@@ -6,11 +6,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 
-import { AppLogo } from "@/shared/components/app-logo";
-import { SidebarNavItems } from "@/shared/components/sidebar-nav-items";
-import { TopbarSearch } from "@/shared/components/topbar-search";
-import { UserPill } from "@/shared/components/user-pill";
-import { Separator } from "@/components/ui/separator";
+import { Separator } from "../../components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -20,8 +16,12 @@ import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { authClient } from "@/shared/lib/auth";
+} from "../../components/ui/sidebar";
+import { AppLogo } from "../../shared/components/app-logo";
+import { SidebarNavItems } from "../../shared/components/sidebar-nav-items";
+import { TopbarSearch } from "../../shared/components/topbar-search";
+import { UserPill } from "../../shared/components/user-pill";
+import { authClient } from "../../shared/lib/auth";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: async () => {

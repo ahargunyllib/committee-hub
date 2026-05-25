@@ -1,9 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { AppLogo } from "@/shared/components/app-logo";
-import { authClient } from "@/shared/lib/auth";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
+
+import { Button } from "../../components/ui/button";
+import { Card } from "../../components/ui/card";
+import { AppLogo } from "../../shared/components/app-logo";
+import { authClient } from "../../shared/lib/auth";
 
 export const Route = createFileRoute("/auth/login")({
   beforeLoad: async () => {
