@@ -8,6 +8,16 @@
     "NODE_ENV": "production",
     "LOG_LEVEL": "info"
   },
+  "secrets": {
+    "required": [
+      "BETTER_AUTH_SECRET",
+      "BETTER_AUTH_URL",
+      "DASHBOARD_URL",
+      "DATABASE_URL",
+      "GOOGLE_CLIENT_ID",
+      "GOOGLE_CLIENT_SECRET"
+    ]
+  },
   "routes": [
     {
       "pattern": "committee-hub-api.ahargunyllib.dev",

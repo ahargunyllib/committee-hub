@@ -3,6 +3,7 @@
   "scripts": {
     "build:api": "bun --cwd apps/api build",
     "build:dashboard": "bun --cwd apps/dashboard build",
+    "cf-typegen:api": "bun --cwd apps/api cf-typegen",
     "check": "ultracite check",
     "deploy:api": "bun --cwd apps/api deploy",
     "deploy:dashboard": "bun --cwd apps/dashboard deploy",

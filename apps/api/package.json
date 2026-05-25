@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "bun run src/index.ts",
     "build": "tsc --noEmit",
+    "cf-typegen": "wrangler types",
     "deploy": "wrangler deploy",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
