@@ -1,7 +1,7 @@
 import type { DB } from "../../db";
 import { userTable, type User, type UserRole } from "../../db/auth.schema";
 import { AppError } from "../../lib/errors";
-import { desc, eq } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import type { AdminActivityLog, SystemConfig } from "./admin.schema";
 import { adminActivityLogTable, systemConfigTable } from "./admin.schema";
 
@@ -22,6 +22,8 @@ export type ActivityLogEntry = AdminActivityLog;
 
 export type AdminRepository = {
   listUsers: () => Promise<User[]>;
+  countAdmins: () => Promise<number>;
+  getUserById: (userId: string) => Promise<User | null>;
   updateUserRole: (userId: string, input: UpdateUserRoleInput) => Promise<User>;
   listSystemConfigs: () => Promise<SystemConfig[]>;
   upsertSystemConfig: (input: UpsertSystemConfigInput) => Promise<SystemConfig>;
@@ -41,6 +43,23 @@ const firstOrNotFound = <T>(rows: T[], message: string): T => {
 export const createAdminRepository = (db: DB): AdminRepository => ({
   // Read Better Auth users for admin management; userTable is shared auth infrastructure, not a business service.
   listUsers: () => db.select().from(userTable).orderBy(userTable.createdAt),
+  countAdmins: async () => {
+    const [result] = await db
+      .select({ value: count() })
+      .from(userTable)
+      .where(eq(userTable.role, "admin"));
+
+    return result?.value ?? 0;
+  },
+  getUserById: async (userId) => {
+    const [user] = await db
+      .select()
+      .from(userTable)
+      .where(eq(userTable.id, userId))
+      .limit(1);
+
+    return user ?? null;
+  },
   // Update only the role field after service-level authorization decides the actor can manage roles.
   updateUserRole: async (userId, input) => {
     const rows = await db.transaction(async (tx) => {

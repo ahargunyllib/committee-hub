@@ -1,6 +1,9 @@
 import type { DB } from "../../db";
+import { userTable, type UserRole } from "../../db/auth.schema";
 import { AppError } from "../../lib/errors";
 import { and, asc, eq } from "drizzle-orm";
+import type { Event } from "../event/event.schema";
+import { eventTable } from "../event/event.schema";
 import type { Proposal, ProposalApproval } from "./proposal.schema";
 import { proposalApprovalTable, proposalTable } from "./proposal.schema";
 
@@ -33,7 +36,10 @@ export type ReviewProposalInput = {
 export type ProposalRepository = {
   listProposals: (input: ListProposalsInput) => Promise<Proposal[]>;
   createProposal: (input: CreateProposalInput) => Promise<Proposal>;
+  getEventById: (eventId: string) => Promise<Event | null>;
   getProposalById: (proposalId: string) => Promise<Proposal | null>;
+  getProposalByEventId: (eventId: string) => Promise<Proposal | null>;
+  getUserRoleById: (userId: string) => Promise<UserRole | null>;
   updateProposal: (
     proposalId: string,
     input: UpdateProposalInput
@@ -136,6 +142,16 @@ export const createProposalRepository = (db: DB): ProposalRepository => ({
 
     return firstOrNotFound(rows, "Proposal was not created");
   },
+  // Fetch event ownership for proposal submission invariants.
+  getEventById: async (eventId) => {
+    const [event] = await db
+      .select()
+      .from(eventTable)
+      .where(eq(eventTable.id, eventId))
+      .limit(1);
+
+    return event ?? null;
+  },
   // Fetch one proposal by primary key; service decides whether null becomes not-found.
   getProposalById: async (proposalId) => {
     const [proposal] = await db
@@ -145,6 +161,26 @@ export const createProposalRepository = (db: DB): ProposalRepository => ({
       .limit(1);
 
     return proposal ?? null;
+  },
+  // Fetch proposal by event to enforce the one-proposal-per-event workflow before insert.
+  getProposalByEventId: async (eventId) => {
+    const [proposal] = await db
+      .select()
+      .from(proposalTable)
+      .where(eq(proposalTable.eventId, eventId))
+      .limit(1);
+
+    return proposal ?? null;
+  },
+  // Read reviewer/submitter role from Better Auth user table as shared auth infrastructure.
+  getUserRoleById: async (userId) => {
+    const [user] = await db
+      .select({ role: userTable.role })
+      .from(userTable)
+      .where(eq(userTable.id, userId))
+      .limit(1);
+
+    return user?.role ?? null;
   },
   // Apply revisions to draft/revision-requested proposal fields before resubmission.
   updateProposal: async (proposalId, input) => {
