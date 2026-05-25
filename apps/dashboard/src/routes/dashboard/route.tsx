@@ -18,14 +18,15 @@ import {
   SidebarTrigger,
 } from "../../shared/components/ui/sidebar";
 import { AppLogo } from "../../shared/components/app-logo";
+import { DevRolePanel } from "../../shared/components/dev-role-panel";
 import { SidebarNavItems } from "../../shared/components/sidebar-nav-items";
 import { TopbarSearch } from "../../shared/components/topbar-search";
 import { UserPill } from "../../shared/components/user-pill";
-import { authClient } from "../../shared/lib/auth";
+import { getSession } from "../../shared/lib/auth";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: async () => {
-    const session = await authClient.getSession();
+    const session = await getSession();
     if (!session.data) {
       throw redirect({ to: "/auth/login" });
     }
@@ -82,6 +83,7 @@ function DashboardLayout() {
         <main className="flex-1 p-6">
           <Outlet />
         </main>
+        <DevRolePanel fallbackRole={user.role} />
       </SidebarInset>
     </SidebarProvider>
   );

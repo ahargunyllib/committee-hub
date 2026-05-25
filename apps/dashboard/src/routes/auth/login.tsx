@@ -4,11 +4,15 @@ import { useState } from "react";
 import { Button } from "../../shared/components/ui/button";
 import { Card } from "../../shared/components/ui/card";
 import { AppLogo } from "../../shared/components/app-logo";
-import { authClient, dashboardOverviewUrl } from "../../shared/lib/auth";
+import {
+  authClient,
+  dashboardOverviewUrl,
+  getSession,
+} from "../../shared/lib/auth";
 
 export const Route = createFileRoute("/auth/login")({
   beforeLoad: async () => {
-    const session = await authClient.getSession();
+    const session = await getSession();
     if (session.data) {
       throw redirect({ to: "/dashboard/overview" });
     }
