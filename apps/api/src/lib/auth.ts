@@ -9,6 +9,7 @@ import {
   userTable,
   verificationTable,
 } from "../db/auth.schema";
+import { runAuthBackgroundTask } from "./background-tasks";
 import { createId } from "./id";
 
 export const auth = betterAuth({
@@ -47,6 +48,12 @@ export const auth = betterAuth({
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     },
   },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 3600,
+    },
+  },
   plugins: [openAPI()],
   user: {
     additionalFields: {
@@ -66,6 +73,9 @@ export const auth = betterAuth({
     },
   },
   advanced: {
+    backgroundTasks: {
+      handler: runAuthBackgroundTask,
+    },
     defaultCookieAttributes: {
       httpOnly: true,
       sameSite: env.NODE_ENV === "production" ? "none" : "lax",
@@ -74,6 +84,9 @@ export const auth = betterAuth({
     database: {
       generateId: () => createId("auth"),
     },
+  },
+  experimental: {
+    joins: true,
   },
 });
 

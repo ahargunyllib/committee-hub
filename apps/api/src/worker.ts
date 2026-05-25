@@ -1,5 +1,6 @@
 import { env as workerBindings } from "cloudflare:workers";
 import { CloudflareAdapter } from "elysia/adapter/cloudflare-worker";
+import { runWithBackgroundTaskRunner } from "./lib/background-tasks";
 
 type HyperdriveBinding = {
   connectionString: string;
@@ -43,4 +44,13 @@ applyWorkerBindings(workerBindings);
 
 const { createApp } = await import("./app");
 
-export default createApp(CloudflareAdapter).compile();
+const app = createApp(CloudflareAdapter).compile();
+
+export default {
+  fetch(request: Request, _bindings: ApiWorkerBindings, ctx: ExecutionContext) {
+    return runWithBackgroundTaskRunner(
+      (promise) => ctx.waitUntil(promise),
+      () => app.fetch(request)
+    );
+  },
+};
