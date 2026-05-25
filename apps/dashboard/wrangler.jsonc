@@ -5,5 +5,11 @@
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application"
-  }
+  },
+  "routes": [
+    {
+      "pattern": "committee-hub.ahargunyllib.dev",
+      "custom_domain": true
+    }
+  ]
 }
