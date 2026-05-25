@@ -79,47 +79,18 @@ export const createCommitteeService = ({
     repository.listApplicationsByDivision(divisionId),
 
   reviewApplication: async (applicationId, input) => {
-    // check application exists
-    const currentApp = await repository.getApplicationById(applicationId);
-    if (!currentApp) {
-      throw new Error("Application not found.");
-    }
-
-    // check application is still pending
-    if (currentApp.status !== "pending") {
-      throw new Error(`Application has already been ${currentApp.status}.`);
-    }
-
-    // if accepting, check division quota belum penuh
-    if (input.status === "accepted") {
-      const division = await repository.getDivisionById(currentApp.divisionId);
-      if (!division) {
-        throw new Error("Associated division not found.");
-      }
-
-      const applications = await repository.listApplicationsByDivision(
-        currentApp.divisionId
-      );
-      const acceptedCount = applications.filter(
-        (app) => app.status === "accepted"
-      ).length;
-
-      if (acceptedCount >= division.quota) {
-        throw new Error("Division quota is already full.");
-      }
-    }
-
-    // update application review fields atomically
+    // Structural, quota, and concurrency safety checks are handled atomically
+    // inside the repository database transaction layer.
     const application = await repository.reviewApplication(
       applicationId,
       input
     );
 
-    // emit side-effect for notifications
+    // Emit event notifications safely following successful update execution
     appEvents.emit("committee.applicationReviewed", {
-      applicationId,
+      applicationId: application.id,
+      status: application.status as "accepted" | "rejected",
       recipientUserId: application.userId,
-      status: input.status,
     });
 
     return application;

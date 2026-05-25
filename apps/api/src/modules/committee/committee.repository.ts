@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { DB } from "../../db";
 import { committeeApplicationTable, divisionTable } from "./committee.schema";
 import type { CommitteeApplication, Division } from "./committee.schema";
@@ -111,20 +111,67 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
 
   // Update review status, reviewer, and timestamp in one write
   reviewApplication: async (applicationId, input) => {
-    const [application] = await db
-      .update(committeeApplicationTable)
-      .set({
-        status: input.status,
-        reviewedById: input.reviewerId,
-        reviewedAt: new Date(),
-      })
-      .where(eq(committeeApplicationTable.id, applicationId))
-      .returning();
+    return await db.transaction(async (tx) => {
+      // 1. Fetch current application state inside the transaction
+      const [currentApp] = await tx
+        .select()
+        .from(committeeApplicationTable)
+        .where(eq(committeeApplicationTable.id, applicationId))
+        .limit(1);
 
-    if (!application) {
-      throw new Error("Failed to review application.");
-    }
-    return application;
+      if (!currentApp) {
+        throw new Error("Application not found.");
+      }
+
+      // 2. Prevent re-reviewing already processed applications
+      if (currentApp.status !== "pending") {
+        throw new Error(`Application has already been ${currentApp.status}.`);
+      }
+
+      // 3. Conditional validation for acceptance criteria
+      if (input.status === "accepted") {
+        const [division] = await tx
+          .select()
+          .from(divisionTable)
+          .where(eq(divisionTable.id, currentApp.divisionId))
+          .limit(1);
+
+        if (!division) {
+          throw new Error("Associated division not found.");
+        }
+
+        // Count current accepted members inside the isolated transaction
+        const acceptedApps = await tx
+          .select()
+          .from(committeeApplicationTable)
+          .where(
+            and(
+              eq(committeeApplicationTable.divisionId, currentApp.divisionId),
+              eq(committeeApplicationTable.status, "accepted")
+            )
+          );
+
+        if (acceptedApps.length >= division.quota) {
+          throw new Error("Division quota is already full.");
+        }
+      }
+
+      // 4. Atomic database update execution
+      const [application] = await tx
+        .update(committeeApplicationTable)
+        .set({
+          status: input.status,
+          reviewedById: input.reviewerId,
+          reviewedAt: new Date(),
+        })
+        .where(eq(committeeApplicationTable.id, applicationId))
+        .returning();
+
+      if (!application) {
+        throw new Error("Failed to review application.");
+      }
+      return application;
+    });
   },
 
   // 2. Add the Implementations here
