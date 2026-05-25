@@ -6,7 +6,8 @@
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "NODE_ENV": "production",
-    "LOG_LEVEL": "info"
+    "LOG_LEVEL": "info",
+    "PORT": "3000"
   },
   "secrets": {
     "required": [

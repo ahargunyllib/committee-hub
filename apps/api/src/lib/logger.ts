@@ -1,5 +1,5 @@
 import pino from "pino";
-import { env } from "../env";
+import { env } from "cloudflare:workers";
 
 export const logger = pino({
   level: env.LOG_LEVEL,

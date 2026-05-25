@@ -8,8 +8,8 @@ import {
   userTable,
   verificationTable,
 } from "../db/auth.schema";
-import { env } from "../env";
 import { createId } from "./id";
+import { env } from "cloudflare:workers";
 
 export const auth = betterAuth({
   appName: "committee-hub",

@@ -4,7 +4,7 @@ import { openapi } from "@elysia/openapi";
 import { Elysia } from "elysia";
 import { CloudflareAdapter } from "elysia/adapter/cloudflare-worker";
 import { db } from "./db";
-import { env } from "./env";
+import { env } from "cloudflare:workers";
 import { auth } from "./lib/auth";
 import { getAuthOpenAPIDocumentation } from "./lib/auth-openapi";
 import { authContextPlugin } from "./middleware/auth-context";
