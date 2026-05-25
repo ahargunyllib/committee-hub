@@ -582,11 +582,11 @@ Phase 0-3 done. Backend (apps/api) jalan dengan Google OAuth configured (`GOOGLE
 #### 4.1 Buat `src/routes/auth/login.tsx`
 
 ```tsx
-import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Button } from "@/shared/components/ui/button";
+import { Card } from "@/shared/components/ui/card";
 import { AppLogo } from "@/shared/components/app-logo";
-import { authClient } from "@/shared/lib/auth";
+import { authClient, dashboardOverviewUrl } from "@/shared/lib/auth";
 import { useState } from "react";
 
 export const Route = createFileRoute("/auth/login")({
@@ -606,7 +606,7 @@ function LoginScreen() {
     setLoading(true);
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/dashboard/overview",
+      callbackURL: dashboardOverviewUrl(),
     });
     // Better-auth redirects; loading state will persist briefly.
   };

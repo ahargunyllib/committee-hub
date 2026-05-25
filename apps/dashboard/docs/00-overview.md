@@ -116,7 +116,7 @@ Setiap feature ikut pola `tedx-2026`:
 1. User buka `/` → redirect ke `/dashboard/overview`.
 2. `routes/dashboard/route.tsx` `beforeLoad` cek `authClient.getSession()`.
 3. Kalau tidak ada session → redirect `/auth/login`.
-4. Login screen → klik "Continue with Google" → `authClient.signIn.social({ provider: "google", callbackURL: "/dashboard/overview" })`.
+4. Login screen → klik "Continue with Google" → `authClient.signIn.social({ provider: "google", callbackURL: dashboardOverviewUrl() })`.
 5. Better-auth set httpOnly cookie. Semua API request berikutnya bawa cookie via `credentials: "include"`.
 6. `useSession()` (dari better-auth client) untuk akses user di komponen.
 

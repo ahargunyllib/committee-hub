@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "../../shared/components/ui/button";
 import { Card } from "../../shared/components/ui/card";
 import { AppLogo } from "../../shared/components/app-logo";
-import { authClient } from "../../shared/lib/auth";
+import { authClient, dashboardOverviewUrl } from "../../shared/lib/auth";
 
 export const Route = createFileRoute("/auth/login")({
   beforeLoad: async () => {
@@ -22,7 +22,7 @@ function LoginScreen() {
   const handleSignIn = async () => {
     setLoading(true);
     await authClient.signIn.social({
-      callbackURL: "/dashboard/overview",
+      callbackURL: dashboardOverviewUrl(),
       provider: "google",
     });
   };
