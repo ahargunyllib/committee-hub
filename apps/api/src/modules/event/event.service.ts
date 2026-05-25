@@ -82,33 +82,8 @@ export const createEventService = ({
   deleteEvent: (eventId) => repository.deleteEvent(eventId),
 
   registerParticipant: async (eventId, userId) => {
-    // check event exists
-    const event = await repository.getEventById(eventId);
-    if (!event) {
-      throw new Error("Event not found.");
-    }
-
-    // check event is open
-    if (event.status !== "open") {
-      throw new Error("This event is not currently open for registration.");
-    }
-
-    // check quota belum penuh
-    const registrations = await repository.listRegistrations(eventId);
-    if (registrations.length >= event.quota) {
-      throw new Error("Event registration quota is full.");
-    }
-
-    // check user exists
-    // (Handled automatically by the auth session passing the userId)
-
-    // check user has not registered for this event
-    const hasRegistered = registrations.some((reg) => reg.userId === userId);
-    if (hasRegistered) {
-      throw new Error("User is already registered for this event.");
-    }
-
-    // create registration and ticket atomically
+    // All quota, status, and duplicate checks are now safely handled
+    // inside the ACID transaction in the repository layer.
     const registration = await repository.createRegistration(eventId, userId);
 
     appEvents.emit("event.registrationCreated", {

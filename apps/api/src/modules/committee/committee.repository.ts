@@ -57,7 +57,9 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
   // Insert a division for an event
   createDivision: async (input) => {
     const [division] = await db.insert(divisionTable).values(input).returning();
-
+    if (!division) {
+      throw new Error("Failed to create division.");
+    }
     return division;
   },
 
@@ -68,18 +70,36 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
       .set(input)
       .where(eq(divisionTable.id, divisionId))
       .returning();
-
+    if (!division) {
+      throw new Error("Failed to update division.");
+    }
     return division;
   },
 
   // Insert an application
   createApplication: async (input) => {
-    const [application] = await db
-      .insert(committeeApplicationTable)
-      .values(input)
-      .returning();
+    try {
+      const [application] = await db
+        .insert(committeeApplicationTable)
+        .values(input)
+        .returning();
 
-    return application;
+      if (!application) {
+        throw new Error("Failed to create application.");
+      }
+      return application;
+    } catch (error) {
+      // Safely type-cast the error to check for the Postgres unique violation code
+      if (
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === "23505"
+      ) {
+        throw new Error("User has already applied to this division.");
+      }
+      throw error;
+    }
   },
 
   // List applicants for a division
@@ -101,6 +121,9 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
       .where(eq(committeeApplicationTable.id, applicationId))
       .returning();
 
+    if (!application) {
+      throw new Error("Failed to review application.");
+    }
     return application;
   },
 

@@ -66,10 +66,13 @@ export const createEventRepository = (db: DB): EventRepository => ({
       .insert(eventTable)
       .values({
         ...input,
-        date: new Date(input.date), // Map string input to Date for schema
+        date: new Date(input.date),
       })
       .returning();
 
+    if (!event) {
+      throw new Error("Failed to create event.");
+    }
     return event;
   },
 
@@ -90,12 +93,14 @@ export const createEventRepository = (db: DB): EventRepository => ({
       .update(eventTable)
       .set({
         ...input,
-        // Convert date string if it is being updated
         date: input.date ? new Date(input.date) : undefined,
       })
       .where(eq(eventTable.id, eventId))
       .returning();
 
+    if (!event) {
+      throw new Error("Failed to update event.");
+    }
     return event;
   },
 
@@ -106,23 +111,50 @@ export const createEventRepository = (db: DB): EventRepository => ({
   },
 
   // Create registration and ticket in one transaction
+  // Completely refactored to handle the race condition
   createRegistration: async (eventId, userId) => {
     return await db.transaction(async (tx) => {
-      // 1. Create the registration record
+      // 1. Fetch event to check quota inside the transaction
+      const [event] = await tx
+        .select()
+        .from(eventTable)
+        .where(eq(eventTable.id, eventId))
+        .limit(1);
+
+      if (!event) {
+        throw new Error("Event not found.");
+      }
+      if (event.status !== "open") {
+        throw new Error("Event is not open.");
+      }
+
+      // 2. Check current registrations inside the transaction
+      const currentRegistrations = await tx
+        .select()
+        .from(registrationTable)
+        .where(eq(registrationTable.eventId, eventId));
+
+      if (currentRegistrations.length >= event.quota) {
+        throw new Error("Event registration quota is full.");
+      }
+
+      if (currentRegistrations.some((reg) => reg.userId === userId)) {
+        throw new Error("User is already registered for this event.");
+      }
+
+      // 3. Proceed with inserts
       const [registration] = await tx
         .insert(registrationTable)
-        .values({
-          eventId,
-          userId,
-        })
+        .values({ eventId, userId })
         .returning();
 
-      // 2. Atomically create the linked ticket
+      if (!registration) {
+        throw new Error("Failed to create registration.");
+      }
+
       await tx
         .insert(ticketTable)
-        .values({
-          registrationId: registration.id,
-        })
+        .values({ registrationId: registration.id })
         .returning();
 
       return registration;

@@ -70,15 +70,9 @@ export const createCommitteeService = ({
   },
 
   createApplication: async (input) => {
-    // check user has not already applied to this division
-    const existingApps = await repository.listApplicationsByDivision(
-      input.divisionId
-    );
-    if (existingApps.some((app) => app.userId === input.userId)) {
-      throw new Error("User has already applied to this division.");
-    }
-
-    return repository.createApplication(input);
+    // The duplicate application check is now handled securely by catching
+    // the database's unique constraint violation in the repository.
+    return await repository.createApplication(input);
   },
 
   listApplicationsByDivision: (divisionId) =>
