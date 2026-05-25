@@ -1,15 +1,6 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { isUserRole } from "@/shared/lib/permissions";
-import type { UserRole } from "@/shared/lib/types";
-
-const LABELS: Record<UserRole, string> = {
-  admin: "Admin Sistem",
-  fakultas: "Pihak Fakultas",
-  ketua_panitia: "Ketua Panitia",
-  mahasiswa: "Mahasiswa",
-  ormawa: "Pengurus Ormawa",
-  universitas: "Pihak Universitas",
-};
+import { getRoleLabel } from "@/shared/lib/roles";
 
 export function RoleBadge({
   role,
@@ -18,7 +9,7 @@ export function RoleBadge({
   role: string;
   size?: "sm" | "md";
 }) {
-  const label = isUserRole(role) ? LABELS[role] : role;
+  const label = isUserRole(role) ? getRoleLabel(role) : role;
 
   return (
     <Badge className={size === "sm" ? "text-[10px]" : ""} variant="secondary">

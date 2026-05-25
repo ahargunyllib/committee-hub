@@ -34,7 +34,8 @@ import {
 } from "@/shared/components/ui/table";
 import { getInitials } from "@/shared/lib/string";
 import { isUserRole } from "@/shared/lib/permissions";
-import type { User, UserRole } from "@/shared/lib/types";
+import { ROLE_OPTIONS } from "@/shared/lib/roles";
+import type { User } from "@/shared/lib/types";
 import { useSession } from "@/shared/lib/auth";
 
 import { useUpdateUserRole } from "../hooks/use-update-user-role";
@@ -42,15 +43,6 @@ import {
   isUsersRoleFilter,
   useUsersFilterStore,
 } from "../stores/use-users-filter-store";
-
-const roleItems: Array<{ label: string; value: UserRole }> = [
-  { label: "Mahasiswa", value: "mahasiswa" },
-  { label: "Ketua Panitia", value: "ketua_panitia" },
-  { label: "Pengurus Ormawa", value: "ormawa" },
-  { label: "Pihak Fakultas", value: "fakultas" },
-  { label: "Pihak Universitas", value: "universitas" },
-  { label: "Admin Sistem", value: "admin" },
-];
 
 export function UserManagementCard({ users }: { users: User[] }) {
   const { data: session } = useSession();
@@ -97,7 +89,7 @@ export function UserManagementCard({ users }: { users: User[] }) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All roles</SelectItem>
-              {roleItems.map((item) => (
+              {ROLE_OPTIONS.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
                   {item.label}
                 </SelectItem>
@@ -144,7 +136,7 @@ export function UserManagementCard({ users }: { users: User[] }) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {roleItems.map((item) => (
+                      {ROLE_OPTIONS.map((item) => (
                         <SelectItem key={item.value} value={item.value}>
                           {item.label}
                         </SelectItem>
