@@ -1,3 +1,4 @@
+import { env as workerBindings } from "cloudflare:workers";
 import { CloudflareAdapter } from "elysia/adapter/cloudflare-worker";
 
 type HyperdriveBinding = {
@@ -17,10 +18,6 @@ type ApiWorkerBindings = {
   PORT?: string;
 };
 
-type FetchHandler = {
-  fetch: (request: Request) => Response | Promise<Response>;
-};
-
 const workerEnvKeys = [
   "BETTER_AUTH_SECRET",
   "BETTER_AUTH_URL",
@@ -31,8 +28,6 @@ const workerEnvKeys = [
   "NODE_ENV",
   "PORT",
 ] as const;
-
-let appPromise: Promise<FetchHandler> | undefined;
 
 const applyDefaultEnv = (key: string, value: string): void => {
   process.env[key] ??= value;
@@ -59,22 +54,8 @@ const applyWorkerBindings = (bindings: ApiWorkerBindings): void => {
   applyDefaultEnv("PORT", "3000");
 };
 
-const getApp = (): Promise<FetchHandler> => {
-  appPromise ??= import("./app").then(({ createApp }) =>
-    createApp(CloudflareAdapter).compile()
-  );
+applyWorkerBindings(workerBindings as ApiWorkerBindings);
 
-  return appPromise;
-};
+const { createApp } = await import("./app");
 
-export default {
-  async fetch(
-    request: Request,
-    bindings: ApiWorkerBindings
-  ): Promise<Response> {
-    applyWorkerBindings(bindings);
-
-    const app = await getApp();
-    return app.fetch(request);
-  },
-};
+export default createApp(CloudflareAdapter).compile();
