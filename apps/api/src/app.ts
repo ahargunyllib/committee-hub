@@ -191,6 +191,6 @@ export default {
       authOpenAPIDocumentation
     );
 
-    return await app.handle(request);
+    return await app.fetch(request);
   },
 };
