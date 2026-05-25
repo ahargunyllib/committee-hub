@@ -1,3 +1,4 @@
+import type { QueryClient } from "@tanstack/react-query";
 import {
   HeadContent,
   Outlet,
@@ -6,19 +7,20 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import "@/index.css";
 
-// biome-ignore lint/complexity/noBannedTypes: TODO
-export type RouterAppContext = {};
+export type RouterAppContext = {
+  queryClient: QueryClient;
+};
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
   head: () => ({
     meta: [
       {
-        title: "Dashboard",
+        title: "Committee Hub",
       },
       {
         name: "description",
-        content: "The dashboard for Committee Hub",
+        content: "Campus event and committee management",
       },
       {
         name: "robots",

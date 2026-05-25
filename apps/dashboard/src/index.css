@@ -39,6 +39,27 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+  --status-draft-bg: #f4f4f5;
+  --status-draft-fg: #52525b;
+  --status-draft-border: #e4e4e7;
+  --status-success-bg: #e7f6ee;
+  --status-success-fg: #126b3a;
+  --status-success-border: #c4e7d2;
+  --status-pending-bg: #fff7e0;
+  --status-pending-fg: #92590b;
+  --status-pending-border: #f6e3a3;
+  --status-danger-bg: #fdecec;
+  --status-danger-fg: #a02020;
+  --status-danger-border: #f3c8c8;
+  --status-info-bg: #e6efff;
+  --status-info-fg: #1d4ed8;
+  --status-info-border: #c2d6f8;
+  --type-internal-bg: #eef2f7;
+  --type-internal-fg: #334155;
+  --type-internal-border: #dbe2eb;
+  --type-external-bg: #f1ecff;
+  --type-external-fg: #4c2bb8;
+  --type-external-border: #ddd1ff;
 }
 
 .dark {
@@ -73,11 +94,53 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
+  --status-draft-bg: oklch(0.274 0.006 286.033);
+  --status-draft-fg: oklch(0.705 0.015 286.067);
+  --status-draft-border: oklch(0.35 0.006 286);
+  --status-success-bg: oklch(0.28 0.07 150);
+  --status-success-fg: oklch(0.84 0.12 150);
+  --status-success-border: oklch(0.38 0.08 150);
+  --status-pending-bg: oklch(0.31 0.05 85);
+  --status-pending-fg: oklch(0.87 0.14 85);
+  --status-pending-border: oklch(0.42 0.06 85);
+  --status-danger-bg: oklch(0.29 0.07 25);
+  --status-danger-fg: oklch(0.82 0.13 25);
+  --status-danger-border: oklch(0.39 0.08 25);
+  --status-info-bg: oklch(0.29 0.07 260);
+  --status-info-fg: oklch(0.82 0.11 260);
+  --status-info-border: oklch(0.39 0.08 260);
+  --type-internal-bg: oklch(0.274 0.006 286.033);
+  --type-internal-fg: oklch(0.78 0.02 250);
+  --type-internal-border: oklch(0.38 0.01 250);
+  --type-external-bg: oklch(0.29 0.07 300);
+  --type-external-fg: oklch(0.82 0.11 300);
+  --type-external-border: oklch(0.39 0.08 300);
 }
 
 @theme inline {
   --font-sans: "Space Grotesk Variable", sans-serif;
   --font-heading: "Manrope Variable", sans-serif;
+  --color-status-draft-bg: var(--status-draft-bg);
+  --color-status-draft-fg: var(--status-draft-fg);
+  --color-status-draft-border: var(--status-draft-border);
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-success-fg: var(--status-success-fg);
+  --color-status-success-border: var(--status-success-border);
+  --color-status-pending-bg: var(--status-pending-bg);
+  --color-status-pending-fg: var(--status-pending-fg);
+  --color-status-pending-border: var(--status-pending-border);
+  --color-status-danger-bg: var(--status-danger-bg);
+  --color-status-danger-fg: var(--status-danger-fg);
+  --color-status-danger-border: var(--status-danger-border);
+  --color-status-info-bg: var(--status-info-bg);
+  --color-status-info-fg: var(--status-info-fg);
+  --color-status-info-border: var(--status-info-border);
+  --color-type-internal-bg: var(--type-internal-bg);
+  --color-type-internal-fg: var(--type-internal-fg);
+  --color-type-internal-border: var(--type-internal-border);
+  --color-type-external-bg: var(--type-external-bg);
+  --color-type-external-fg: var(--type-external-fg);
+  --color-type-external-border: var(--type-external-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
