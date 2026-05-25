@@ -169,6 +169,10 @@ classDiagram
     EventRepository ..> RegistrationModel : manages & queries
 ```
 
+### 4b. Committee Module Code Structure
+
+This class diagram outlines the Committee module, displaying the specific methods we implemented to safely handle concurrent division updates and HR application reviews.
+
 ```mermaid
 classDiagram
     direction TB
