@@ -12,6 +12,16 @@ type MockSession = {
   };
 } | null;
 
+type ErrorResponseBody = {
+  error: {
+    code: string;
+  };
+};
+
+type RoleResponseBody = {
+  role: string;
+};
+
 let currentSession: MockSession = null;
 
 mock.module("../../lib/auth", () => ({
@@ -101,7 +111,7 @@ describe("dev routes", () => {
         method: "PATCH",
       })
     );
-    const body = await response.json();
+    const body = await response.json<ErrorResponseBody>();
 
     expect(response.status).toBe(401);
     expect(body.error.code).toBe("UNAUTHORIZED");
@@ -123,7 +133,7 @@ describe("dev routes", () => {
         method: "PATCH",
       })
     );
-    const body = await response.json();
+    const body = await response.json<RoleResponseBody>();
 
     expect(response.status).toBe(200);
     expect(body.role).toBe("admin");

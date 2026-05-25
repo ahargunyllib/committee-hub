@@ -17,6 +17,12 @@ type MockSession = {
   };
 } | null;
 
+type ErrorResponseBody = {
+  error: {
+    code: string;
+  };
+};
+
 let currentSession: MockSession = null;
 
 mock.module("../../lib/auth", () => ({
@@ -146,7 +152,7 @@ describe("proposal routes", () => {
     const response = await app.handle(
       new Request("http://localhost/proposals")
     );
-    const body = await response.json();
+    const body = await response.json<ErrorResponseBody>();
 
     expect(response.status).toBe(401);
     expect(body.error.code).toBe("UNAUTHORIZED");

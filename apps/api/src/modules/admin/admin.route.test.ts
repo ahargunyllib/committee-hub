@@ -17,6 +17,30 @@ type MockSession = {
   };
 } | null;
 
+type ErrorResponseBody = {
+  error: {
+    code: string;
+  };
+};
+
+type UsersResponseBody = [
+  {
+    id: string;
+  },
+  ...Array<{
+    id: string;
+  }>,
+];
+
+type ActivityResponseBody = [
+  {
+    action: string;
+  },
+  ...Array<{
+    action: string;
+  }>,
+];
+
 let currentSession: MockSession = null;
 
 mock.module("../../lib/auth", () => ({
@@ -143,7 +167,7 @@ describe("admin routes", () => {
     const response = await app.handle(
       new Request("http://localhost/admin/users")
     );
-    const body = await response.json();
+    const body = await response.json<ErrorResponseBody>();
 
     expect(response.status).toBe(401);
     expect(body.error.code).toBe("UNAUTHORIZED");
@@ -162,7 +186,7 @@ describe("admin routes", () => {
     const response = await app.handle(
       new Request("http://localhost/admin/users")
     );
-    const body = await response.json();
+    const body = await response.json<ErrorResponseBody>();
 
     expect(response.status).toBe(403);
     expect(body.error.code).toBe("FORBIDDEN");
@@ -175,7 +199,7 @@ describe("admin routes", () => {
     const response = await app.handle(
       new Request("http://localhost/admin/users")
     );
-    const body = await response.json();
+    const body = await response.json<UsersResponseBody>();
 
     expect(response.status).toBe(200);
     expect(body[0].id).toBe("usr_admin");
@@ -244,7 +268,7 @@ describe("admin routes", () => {
     const response = await app.handle(
       new Request("http://localhost/admin/activity")
     );
-    const body = await response.json();
+    const body = await response.json<ActivityResponseBody>();
 
     expect(response.status).toBe(200);
     expect(body[0].action).toBe("admin.user_role_updated");
