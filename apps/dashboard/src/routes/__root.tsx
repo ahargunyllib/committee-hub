@@ -4,7 +4,7 @@ import {
   createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import "@tedx-2026/ui/globals.css";
+import "@/index.css";
 
 // biome-ignore lint/complexity/noBannedTypes: TODO
 export type RouterAppContext = {};
