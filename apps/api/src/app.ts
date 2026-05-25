@@ -13,6 +13,9 @@ import { createAdminService } from "./modules/admin/admin.service";
 import { createCommitteeRepository } from "./modules/committee/committee.repository";
 import { createCommitteeRoutes } from "./modules/committee/committee.route";
 import { createCommitteeService } from "./modules/committee/committee.service";
+import { createDevRepository } from "./modules/dev/dev.repository";
+import { createDevRoutes } from "./modules/dev/dev.route";
+import { createDevService } from "./modules/dev/dev.service";
 import { createEventRepository } from "./modules/event/event.repository";
 import { createEventRoutes } from "./modules/event/event.route";
 import { createEventService } from "./modules/event/event.service";
@@ -59,6 +62,9 @@ const notificationService = createNotificationService({
 const adminService = createAdminService({
   repository: createAdminRepository(db),
 });
+const devService = createDevService({
+  repository: createDevRepository(db),
+});
 
 registerNotificationListeners(notificationService);
 
@@ -90,6 +96,7 @@ export const createApp = (adapter?: ElysiaAdapter) =>
           tags: [
             { name: "Better Auth" },
             { name: "Committee" },
+            { name: "Dev" },
             { name: "Proposal" },
             { name: "Event" },
             { name: "Notification" },
@@ -134,6 +141,7 @@ export const createApp = (adapter?: ElysiaAdapter) =>
     .use(createProposalRoutes(proposalService))
     .use(createEventRoutes(eventService))
     .use(createNotificationRoutes(notificationService))
+    .use(createDevRoutes(devService))
     .use(createAdminRoutes(adminService));
 
 export const app = createApp();

@@ -1,5 +1,6 @@
 import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { RoleBadge } from "@/shared/components/role-badge";
 import { Button } from "@/shared/components/ui/button";
@@ -20,31 +21,57 @@ import {
   setDevRoleOverride,
   useDevRoleOverride,
 } from "@/shared/hooks/use-dev-role-override";
-import { authClient } from "@/shared/lib/auth";
+import { api } from "@/shared/lib/api";
 import { isUserRole } from "@/shared/lib/permissions";
 import { ROLE_DETAILS, ROLE_OPTIONS } from "@/shared/lib/roles";
+import type { User } from "@/shared/lib/types";
 
 const SESSION_ROLE_VALUE = "session";
 
 export function DevRolePanel({ fallbackRole }: { fallbackRole: string }) {
   const router = useRouter();
   const roleOverride = useDevRoleOverride();
-  const { data: session } = authClient.useSession();
   const [open, setOpen] = useState(false);
+  const [pendingRole, setPendingRole] = useState<string | null>(null);
 
   if (!isDevRoleOverrideEnabled) {
     return null;
   }
 
-  const sessionRole = session?.user.role ?? fallbackRole;
+  const sessionRole = fallbackRole;
   const effectiveRole = roleOverride ?? sessionRole;
   const effectiveRoleDetails = isUserRole(effectiveRole)
     ? ROLE_DETAILS[effectiveRole]
     : null;
 
   const handleRoleChange = async (value: string) => {
-    setDevRoleOverride(isUserRole(value) ? value : null);
-    await router.invalidate();
+    if (value === SESSION_ROLE_VALUE) {
+      setDevRoleOverride(null);
+      await router.invalidate();
+      return;
+    }
+
+    if (!isUserRole(value)) {
+      return;
+    }
+
+    setPendingRole(value);
+
+    try {
+      const user = await api.patch<User>("/dev/session/role", {
+        role: value,
+      });
+
+      setDevRoleOverride(null);
+      await router.invalidate();
+      toast.success(`Dev role updated to ${ROLE_DETAILS[user.role].label}`);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update dev role"
+      );
+    } finally {
+      setPendingRole(null);
+    }
   };
 
   return (
@@ -79,8 +106,12 @@ export function DevRolePanel({ fallbackRole }: { fallbackRole: string }) {
             </Button>
           </div>
           <Select
+            disabled={pendingRole !== null}
             onValueChange={handleRoleChange}
-            value={roleOverride ?? SESSION_ROLE_VALUE}
+            value={
+              roleOverride ??
+              (isUserRole(sessionRole) ? sessionRole : SESSION_ROLE_VALUE)
+            }
           >
             <SelectTrigger className="w-full">
               <SelectValue />
@@ -122,32 +153,43 @@ export function DevRolePanel({ fallbackRole }: { fallbackRole: string }) {
           <div className="space-y-2">
             <p className="font-medium text-xs">Role differences</p>
             <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
-              {ROLE_OPTIONS.map((item) => (
-                <button
-                  className="w-full rounded-md border bg-background p-2 text-left transition-colors hover:bg-muted/50"
-                  key={item.value}
-                  onClick={async () => {
-                    await handleRoleChange(item.value);
-                  }}
-                  type="button"
-                >
-                  <div className="mb-1 flex items-center justify-between gap-2">
-                    <RoleBadge role={item.value} size="sm" />
-                    {effectiveRole === item.value ? (
-                      <span className="text-[10px] text-muted-foreground">
-                        active
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="text-muted-foreground text-xs">
-                    {ROLE_DETAILS[item.value].description}
-                  </p>
-                </button>
-              ))}
+              {ROLE_OPTIONS.map((item) => {
+                const isActive = effectiveRole === item.value;
+                const isSaving = pendingRole === item.value;
+
+                return (
+                  <button
+                    className="w-full rounded-md border bg-background p-2 text-left transition-colors hover:bg-muted/50"
+                    disabled={pendingRole !== null}
+                    key={item.value}
+                    onClick={async () => {
+                      await handleRoleChange(item.value);
+                    }}
+                    type="button"
+                  >
+                    <div className="mb-1 flex items-center justify-between gap-2">
+                      <RoleBadge role={item.value} size="sm" />
+                      {isActive ? (
+                        <span className="text-[10px] text-muted-foreground">
+                          active
+                        </span>
+                      ) : null}
+                      {!isActive && isSaving ? (
+                        <span className="text-[10px] text-muted-foreground">
+                          saving
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      {ROLE_DETAILS[item.value].description}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
             <p className="text-[10px] text-muted-foreground">
-              Dev override changes frontend access only. It does not update the
-              database role.
+              Development-only. Updates your database role through the dev
+              endpoint.
             </p>
           </div>
         </PopoverContent>
