@@ -1,5 +1,6 @@
+import { and, eq, ilike, type SQL } from "drizzle-orm";
 import type { DB } from "../../db";
-import { notImplemented } from "../../lib/stub";
+import { eventTable, registrationTable, ticketTable } from "./event.schema";
 import type { Event, Registration, Ticket } from "./event.schema";
 
 export type ListEventsInput = {
@@ -38,25 +39,155 @@ export type EventRepository = {
   verifyTicket: (ticketCode: string) => Promise<Ticket>;
 };
 
-export const createEventRepository = (_db: DB): EventRepository => ({
+export const createEventRepository = (db: DB): EventRepository => ({
   // Query events with filters on columns owned by the event module.
-  listEvents: (_input) => notImplemented("event.repository.listEvents"),
-  // Insert the event and rely on the FK to user.id, or pre-check userTable for a friendlier creator-not-found error.
-  createEvent: (_input) => notImplemented("event.repository.createEvent"),
-  // Fetch one event by primary key; return null so the service can decide the API/domain error shape.
-  getEventById: (_eventId) => notImplemented("event.repository.getEventById"),
+  listEvents: async (input) => {
+    const conditions: SQL[] = [];
+
+    if (input.search) {
+      conditions.push(ilike(eventTable.name, `%${input.search}%`));
+    }
+    if (input.status) {
+      conditions.push(eq(eventTable.status, input.status));
+    }
+    if (input.type) {
+      conditions.push(eq(eventTable.type, input.type));
+    }
+
+    return await db
+      .select()
+      .from(eventTable)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+  },
+
+  // Insert the event. FK validation is handled inherently by PostgreSQL.
+  createEvent: async (input) => {
+    const [event] = await db
+      .insert(eventTable)
+      .values({
+        ...input,
+        date: new Date(input.date),
+      })
+      .returning();
+
+    if (!event) {
+      throw new Error("Failed to create event.");
+    }
+    return event;
+  },
+
+  // Fetch one event by primary key
+  getEventById: async (eventId) => {
+    const [event] = await db
+      .select()
+      .from(eventTable)
+      .where(eq(eventTable.id, eventId))
+      .limit(1);
+
+    return event ?? null;
+  },
+
   // Update only mutable event fields and return the updated row.
-  updateEvent: (_eventId, _input) =>
-    notImplemented("event.repository.updateEvent"),
-  // Delete or soft-delete the event depending on final product policy.
-  deleteEvent: (_eventId) => notImplemented("event.repository.deleteEvent"),
-  // Create registration and ticket in one transaction after checking event status/quota and duplicate registration.
-  createRegistration: (_eventId, _userId) =>
-    notImplemented("event.repository.createRegistration"),
-  // List registrations for one event, with joins to user/ticket only when the caller needs those details.
-  listRegistrations: (_eventId) =>
-    notImplemented("event.repository.listRegistrations"),
-  // Look up a unique ticket code and mark it used atomically when attendance verification is implemented.
-  verifyTicket: (_ticketCode) =>
-    notImplemented("event.repository.verifyTicket"),
+  updateEvent: async (eventId, input) => {
+    const [event] = await db
+      .update(eventTable)
+      .set({
+        ...input,
+        date: input.date ? new Date(input.date) : undefined,
+      })
+      .where(eq(eventTable.id, eventId))
+      .returning();
+
+    if (!event) {
+      throw new Error("Failed to update event.");
+    }
+    return event;
+  },
+
+  // Delete the event
+  deleteEvent: async (eventId) => {
+    await db.delete(eventTable).where(eq(eventTable.id, eventId));
+    return { deleted: true };
+  },
+
+  // Create registration and ticket in one transaction
+  // Completely refactored to handle the race condition
+  createRegistration: async (eventId, userId) => {
+    return await db.transaction(async (tx) => {
+      // 1. Fetch event to check quota inside the transaction
+      const [event] = await tx
+        .select()
+        .from(eventTable)
+        .where(eq(eventTable.id, eventId))
+        .limit(1);
+
+      if (!event) {
+        throw new Error("Event not found.");
+      }
+      if (event.status !== "open") {
+        throw new Error("Event is not open.");
+      }
+
+      // 2. Check current registrations inside the transaction
+      const currentRegistrations = await tx
+        .select()
+        .from(registrationTable)
+        .where(eq(registrationTable.eventId, eventId));
+
+      if (currentRegistrations.length >= event.quota) {
+        throw new Error("Event registration quota is full.");
+      }
+
+      if (currentRegistrations.some((reg) => reg.userId === userId)) {
+        throw new Error("User is already registered for this event.");
+      }
+
+      // 3. Proceed with inserts
+      const [registration] = await tx
+        .insert(registrationTable)
+        .values({ eventId, userId })
+        .returning();
+
+      if (!registration) {
+        throw new Error("Failed to create registration.");
+      }
+
+      await tx
+        .insert(ticketTable)
+        .values({ registrationId: registration.id })
+        .returning();
+
+      return registration;
+    });
+  },
+
+  // List registrations for one event
+  listRegistrations: async (eventId) =>
+    db
+      .select()
+      .from(registrationTable)
+      .where(eq(registrationTable.eventId, eventId)),
+
+  // Look up a unique ticket code and mark it used atomically
+  verifyTicket: async (ticketCode) => {
+    const [ticket] = await db
+      .update(ticketTable)
+      .set({
+        status: "used",
+        usedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(ticketTable.code, ticketCode),
+          eq(ticketTable.status, "active") // Ensure we only verify active tickets
+        )
+      )
+      .returning();
+
+    if (!ticket) {
+      throw new Error("Ticket not found or already used/cancelled.");
+    }
+
+    return ticket;
+  },
 });

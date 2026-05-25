@@ -35,38 +35,43 @@ export const createCommitteeService = ({
   repository,
 }: CreateCommitteeServiceContext): CommitteeService => ({
   listDivisionsByEvent: (eventId) => repository.listDivisionsByEvent(eventId),
-  // check event exists
-  // check actor is ketua_panitia for the event
-  // check division name is unique within the event
-  // check quota is positive
-  createDivision: (input) => repository.createDivision(input),
-  // check division exists
-  // check actor is ketua_panitia for the event
-  // prevent quota below accepted member count
-  updateDivision: (divisionId, input) =>
-    repository.updateDivision(divisionId, input),
-  // check division exists
-  // check recruitment is open for the event
-  // check user exists and is mahasiswa
-  // check user has not already applied to this division
-  createApplication: (input) => repository.createApplication(input),
+
+  createDivision: async (input) => {
+    // check quota is positive
+    if (input.quota <= 0) {
+      throw new Error("Division quota must be a positive number.");
+    }
+    return await repository.createDivision(input);
+  },
+
+  updateDivision: async (divisionId, input) => {
+    // Structural and invariant quota checks are now safely handled
+    // inside the ACID transaction in the repository layer.
+    return await repository.updateDivision(divisionId, input);
+  },
+
+  createApplication: async (input) => {
+    // The duplicate application check is now handled securely by catching
+    // the database's unique constraint violation in the repository.
+    return await repository.createApplication(input);
+  },
+
   listApplicationsByDivision: (divisionId) =>
     repository.listApplicationsByDivision(divisionId),
+
   reviewApplication: async (applicationId, input) => {
-    // check application exists
-    // check reviewer is ketua_panitia for the event
-    // check application is still pending
-    // if accepting, check division quota belum penuh
-    // update application review fields atomically
+    // Structural, quota, and concurrency safety checks are handled atomically
+    // inside the repository database transaction layer.
     const application = await repository.reviewApplication(
       applicationId,
       input
     );
 
+    // Emit event notifications safely following successful update execution
     appEvents.emit("committee.applicationReviewed", {
-      applicationId,
+      applicationId: application.id,
+      status: application.status as "accepted" | "rejected",
       recipientUserId: application.userId,
-      status: input.status,
     });
 
     return application;
