@@ -1,5 +1,5 @@
 import { eq, inArray } from "drizzle-orm";
-import { db, postgresClient } from ".";
+import { createDb } from ".";
 import {
   adminActivityLogTable,
   committeeApplicationTable,
@@ -13,6 +13,12 @@ import {
   ticketTable,
   userTable,
 } from "./schema";
+
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  throw new Error("DATABASE_URL environment variable is not set");
+}
+const db = createDb(DATABASE_URL);
 
 const dayMs = 24 * 60 * 60 * 1000;
 const now = new Date();
@@ -753,5 +759,5 @@ const main = async () => {
 try {
   await main();
 } finally {
-  await postgresClient.end();
+  await db.$client.end();
 }

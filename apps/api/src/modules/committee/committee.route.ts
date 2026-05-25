@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../lib/auth";
+import type { SessionAuth } from "../../lib/auth";
 import { AppError } from "../../lib/errors";
 import type { CommitteeService } from "./committee.service";
 
@@ -9,6 +9,7 @@ const applicationDecision = t.Union([
 ]);
 
 const requireAuthenticatedSession = async (
+  auth: SessionAuth,
   headers: Headers
 ): Promise<string> => {
   const authSession = await auth.api.getSession({
@@ -22,7 +23,10 @@ const requireAuthenticatedSession = async (
   return authSession.user.id;
 };
 
-export const createCommitteeRoutes = (committeeService: CommitteeService) =>
+export const createCommitteeRoutes = (
+  auth: SessionAuth,
+  committeeService: CommitteeService
+) =>
   new Elysia({
     name: "committee-routes",
     prefix: "/committee",
@@ -87,7 +91,7 @@ export const createCommitteeRoutes = (committeeService: CommitteeService) =>
         committeeService.createApplication({
           ...body,
           divisionId: params.divisionId,
-          userId: await requireAuthenticatedSession(request.headers),
+          userId: await requireAuthenticatedSession(auth, request.headers),
         }),
       {
         params: t.Object({
@@ -121,7 +125,7 @@ export const createCommitteeRoutes = (committeeService: CommitteeService) =>
       async ({ body, params, request }) =>
         committeeService.reviewApplication(params.applicationId, {
           ...body,
-          reviewerId: await requireAuthenticatedSession(request.headers),
+          reviewerId: await requireAuthenticatedSession(auth, request.headers),
         }),
       {
         params: t.Object({

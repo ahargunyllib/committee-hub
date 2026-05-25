@@ -1,6 +1,7 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
 import { Elysia } from "elysia";
 import type { User } from "../../db/auth.schema";
+import type { AuthSession, SessionAuth } from "../../lib/auth";
 import { AppError } from "../../lib/errors";
 import type {
   ActivityLogEntry,
@@ -9,13 +10,6 @@ import type {
 } from "./admin.repository";
 import type { AdminService } from "./admin.service";
 import type { SystemConfig } from "./admin.schema";
-
-type MockSession = {
-  user: {
-    id: string;
-    role: string;
-  };
-} | null;
 
 type ErrorResponseBody = {
   error: {
@@ -41,15 +35,13 @@ type ActivityResponseBody = [
   }>,
 ];
 
-let currentSession: MockSession = null;
+let currentSession: AuthSession = null;
 
-mock.module("../../lib/auth", () => ({
-  auth: {
-    api: {
-      getSession: async () => currentSession,
-    },
+const createTestAuth = (): SessionAuth => ({
+  api: {
+    getSession: async () => currentSession,
   },
-}));
+});
 
 const { createAdminRoutes } = await import("./admin.route");
 
@@ -146,7 +138,7 @@ const createTestApp = (capturedCalls: CapturedCalls) => {
 
       throw error;
     })
-    .use(createAdminRoutes(adminService));
+    .use(createAdminRoutes(createTestAuth(), adminService));
 };
 
 describe("admin routes", () => {

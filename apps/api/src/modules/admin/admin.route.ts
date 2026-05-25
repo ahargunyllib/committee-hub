@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../lib/auth";
+import type { SessionAuth } from "../../lib/auth";
 import { AppError } from "../../lib/errors";
 import type { AdminService } from "./admin.service";
 
@@ -19,7 +19,10 @@ const configValueType = t.Union([
   t.Literal("json"),
 ]);
 
-const requireAdminSession = async (headers: Headers): Promise<string> => {
+const requireAdminSession = async (
+  auth: SessionAuth,
+  headers: Headers
+): Promise<string> => {
   const authSession = await auth.api.getSession({
     headers,
   });
@@ -35,13 +38,16 @@ const requireAdminSession = async (headers: Headers): Promise<string> => {
   return authSession.user.id;
 };
 
-export const createAdminRoutes = (adminService: AdminService) =>
+export const createAdminRoutes = (
+  auth: SessionAuth,
+  adminService: AdminService
+) =>
   new Elysia({
     name: "admin-routes",
     prefix: "/admin",
   })
     .derive(async ({ request }) => ({
-      adminActorUserId: await requireAdminSession(request.headers),
+      adminActorUserId: await requireAdminSession(auth, request.headers),
     }))
     .get("/users", () => adminService.listUsers(), {
       detail: {

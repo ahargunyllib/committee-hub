@@ -1,9 +1,10 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../lib/auth";
+import type { SessionAuth } from "../../lib/auth";
 import { AppError } from "../../lib/errors";
 import type { NotificationService } from "./notification.service";
 
 const requireAuthenticatedSession = async (
+  auth: SessionAuth,
   headers: Headers
 ): Promise<string> => {
   const authSession = await auth.api.getSession({
@@ -18,6 +19,7 @@ const requireAuthenticatedSession = async (
 };
 
 export const createNotificationRoutes = (
+  auth: SessionAuth,
   notificationService: NotificationService
 ) =>
   new Elysia({
@@ -25,7 +27,7 @@ export const createNotificationRoutes = (
     prefix: "/notifications",
   })
     .derive(async ({ request }) => ({
-      actorUserId: await requireAuthenticatedSession(request.headers),
+      actorUserId: await requireAuthenticatedSession(auth, request.headers),
     }))
     .get(
       "/",

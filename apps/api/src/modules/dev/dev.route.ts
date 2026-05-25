@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../lib/auth";
+import type { SessionAuth } from "../../lib/auth";
 import { AppError } from "../../lib/errors";
 import { logger } from "../../lib/logger";
 import type { DevService } from "./dev.service";
@@ -15,7 +15,10 @@ const userRole = t.Union([
 
 const isDevRoleEndpointEnabled = true;
 
-const requireDevSession = async (headers: Headers): Promise<string> => {
+const requireDevSession = async (
+  auth: SessionAuth,
+  headers: Headers
+): Promise<string> => {
   if (!isDevRoleEndpointEnabled) {
     throw new AppError("NOT_FOUND", "Development role endpoint is not enabled");
   }
@@ -31,13 +34,13 @@ const requireDevSession = async (headers: Headers): Promise<string> => {
   return authSession.user.id;
 };
 
-export const createDevRoutes = (devService: DevService) =>
+export const createDevRoutes = (auth: SessionAuth, devService: DevService) =>
   new Elysia({
     name: "dev-routes",
     prefix: "/dev",
   })
     .derive(async ({ request }) => ({
-      devActorUserId: await requireDevSession(request.headers),
+      devActorUserId: await requireDevSession(auth, request.headers),
     }))
     .patch(
       "/session/role",

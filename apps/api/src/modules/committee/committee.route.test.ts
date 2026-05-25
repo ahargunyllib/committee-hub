@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
 import { Elysia } from "elysia";
+import type { AuthSession, SessionAuth } from "../../lib/auth";
 import { AppError } from "../../lib/errors";
 import type {
   CreateCommitteeApplicationInput,
@@ -10,28 +11,19 @@ import type {
 import type { CommitteeService } from "./committee.service";
 import type { CommitteeApplication, Division } from "./committee.schema";
 
-type MockSession = {
-  user: {
-    id: string;
-    role: string;
-  };
-} | null;
-
 type ErrorResponseBody = {
   error: {
     code: string;
   };
 };
 
-let currentSession: MockSession = null;
+let currentSession: AuthSession = null;
 
-mock.module("../../lib/auth", () => ({
-  auth: {
-    api: {
-      getSession: async () => currentSession,
-    },
+const createTestAuth = (): SessionAuth => ({
+  api: {
+    getSession: async () => currentSession,
   },
-}));
+});
 
 const { createCommitteeRoutes } = await import("./committee.route");
 
@@ -112,7 +104,7 @@ const createTestApp = (capturedCalls: CapturedCalls) => {
 
       throw error;
     })
-    .use(createCommitteeRoutes(committeeService));
+    .use(createCommitteeRoutes(createTestAuth(), committeeService));
 };
 
 describe("committee routes", () => {

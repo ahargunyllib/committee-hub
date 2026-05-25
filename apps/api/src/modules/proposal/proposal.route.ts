@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../lib/auth";
+import type { SessionAuth } from "../../lib/auth";
 import { AppError } from "../../lib/errors";
 import type { ProposalService } from "./proposal.service";
 
@@ -23,6 +23,7 @@ const proposalDecision = t.Union([
 ]);
 
 const requireAuthenticatedSession = async (
+  auth: SessionAuth,
   headers: Headers
 ): Promise<string> => {
   const authSession = await auth.api.getSession({
@@ -36,13 +37,16 @@ const requireAuthenticatedSession = async (
   return authSession.user.id;
 };
 
-export const createProposalRoutes = (proposalService: ProposalService) =>
+export const createProposalRoutes = (
+  auth: SessionAuth,
+  proposalService: ProposalService
+) =>
   new Elysia({
     name: "proposal-routes",
     prefix: "/proposals",
   })
     .derive(async ({ request }) => ({
-      actorUserId: await requireAuthenticatedSession(request.headers),
+      actorUserId: await requireAuthenticatedSession(auth, request.headers),
     }))
     .get("/", ({ query }) => proposalService.listProposals(query), {
       query: t.Object({

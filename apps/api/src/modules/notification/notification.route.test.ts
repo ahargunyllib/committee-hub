@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
 import { Elysia } from "elysia";
+import type { AuthSession, SessionAuth } from "../../lib/auth";
 import { AppError } from "../../lib/errors";
 import type {
   CreateNotificationInput,
@@ -8,28 +9,19 @@ import type {
 import type { Notification } from "./notification.schema";
 import type { NotificationService } from "./notification.service";
 
-type MockSession = {
-  user: {
-    id: string;
-    role: string;
-  };
-} | null;
-
 type ErrorResponseBody = {
   error: {
     code: string;
   };
 };
 
-let currentSession: MockSession = null;
+let currentSession: AuthSession = null;
 
-mock.module("../../lib/auth", () => ({
-  auth: {
-    api: {
-      getSession: async () => currentSession,
-    },
+const createTestAuth = (): SessionAuth => ({
+  api: {
+    getSession: async () => currentSession,
   },
-}));
+});
 
 const { createNotificationRoutes } = await import("./notification.route");
 
@@ -136,7 +128,7 @@ const createTestApp = (capturedCalls: CapturedCalls) => {
 
       throw error;
     })
-    .use(createNotificationRoutes(notificationService));
+    .use(createNotificationRoutes(createTestAuth(), notificationService));
 };
 
 describe("notification routes", () => {

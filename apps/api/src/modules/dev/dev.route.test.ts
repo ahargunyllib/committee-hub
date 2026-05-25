@@ -1,16 +1,10 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
 import { Elysia } from "elysia";
 import type { User } from "../../db/auth.schema";
+import type { AuthSession, SessionAuth } from "../../lib/auth";
 import { AppError } from "../../lib/errors";
 import type { UpdateCurrentUserRoleInput } from "./dev.service";
 import type { DevService } from "./dev.service";
-
-type MockSession = {
-  user: {
-    id: string;
-    role: string;
-  };
-} | null;
 
 type ErrorResponseBody = {
   error: {
@@ -22,15 +16,13 @@ type RoleResponseBody = {
   role: string;
 };
 
-let currentSession: MockSession = null;
+let currentSession: AuthSession = null;
 
-mock.module("../../lib/auth", () => ({
-  auth: {
-    api: {
-      getSession: async () => currentSession,
-    },
+const createTestAuth = (): SessionAuth => ({
+  api: {
+    getSession: async () => currentSession,
   },
-}));
+});
 
 mock.module("../../lib/logger", () => ({
   logger: {
@@ -84,7 +76,7 @@ const createTestApp = (capturedCalls: CapturedCalls) => {
 
       throw error;
     })
-    .use(createDevRoutes(devService));
+    .use(createDevRoutes(createTestAuth(), devService));
 };
 
 describe("dev routes", () => {

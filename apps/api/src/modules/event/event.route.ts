@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../lib/auth";
+import type { SessionAuth } from "../../lib/auth";
 import { AppError } from "../../lib/errors";
 import type { EventService } from "./event.service";
 
@@ -11,6 +11,7 @@ const eventStatus = t.Union([
 ]);
 
 const requireAuthenticatedSession = async (
+  auth: SessionAuth,
   headers: Headers
 ): Promise<string> => {
   const authSession = await auth.api.getSession({
@@ -24,7 +25,10 @@ const requireAuthenticatedSession = async (
   return authSession.user.id;
 };
 
-export const createEventRoutes = (eventService: EventService) =>
+export const createEventRoutes = (
+  auth: SessionAuth,
+  eventService: EventService
+) =>
   new Elysia({
     name: "event-routes",
     prefix: "/events",
@@ -45,7 +49,7 @@ export const createEventRoutes = (eventService: EventService) =>
       async ({ body, request }) =>
         eventService.createEvent({
           ...body,
-          createdById: await requireAuthenticatedSession(request.headers),
+          createdById: await requireAuthenticatedSession(auth, request.headers),
         }),
       {
         body: t.Object({
@@ -115,7 +119,7 @@ export const createEventRoutes = (eventService: EventService) =>
       async ({ params, request }) =>
         eventService.registerParticipant(
           params.eventId,
-          await requireAuthenticatedSession(request.headers)
+          await requireAuthenticatedSession(auth, request.headers)
         ),
       {
         params: t.Object({

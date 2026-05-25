@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
 import { Elysia } from "elysia";
+import type { AuthSession, SessionAuth } from "../../lib/auth";
 import { AppError } from "../../lib/errors";
 import type {
   CreateProposalInput,
@@ -10,28 +11,19 @@ import type {
 import type { ProposalService } from "./proposal.service";
 import type { Proposal, ProposalApproval } from "./proposal.schema";
 
-type MockSession = {
-  user: {
-    id: string;
-    role: string;
-  };
-} | null;
-
 type ErrorResponseBody = {
   error: {
     code: string;
   };
 };
 
-let currentSession: MockSession = null;
+let currentSession: AuthSession = null;
 
-mock.module("../../lib/auth", () => ({
-  auth: {
-    api: {
-      getSession: async () => currentSession,
-    },
+const createTestAuth = (): SessionAuth => ({
+  api: {
+    getSession: async () => currentSession,
   },
-}));
+});
 
 const { createProposalRoutes } = await import("./proposal.route");
 
@@ -131,7 +123,7 @@ const createTestApp = (capturedCalls: CapturedCalls) => {
 
       throw error;
     })
-    .use(createProposalRoutes(proposalService));
+    .use(createProposalRoutes(createTestAuth(), proposalService));
 };
 
 describe("proposal routes", () => {

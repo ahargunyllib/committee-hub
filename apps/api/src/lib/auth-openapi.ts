@@ -1,13 +1,17 @@
 import type { Path } from "better-auth/plugins";
-import { auth } from "./auth";
+import type { Auth } from "./auth";
 
 type AuthOpenAPISchema = Awaited<
-  ReturnType<typeof auth.api.generateOpenAPISchema>
+  ReturnType<Auth["api"]["generateOpenAPISchema"]>
+>;
+export type AuthOpenAPIDocumentation = Pick<
+  AuthOpenAPISchema,
+  "components" | "paths"
 >;
 
 let authOpenAPISchema: AuthOpenAPISchema | undefined;
 
-const getAuthOpenAPISchema = async (): Promise<AuthOpenAPISchema> => {
+const getAuthOpenAPISchema = async (auth: Auth): Promise<AuthOpenAPISchema> => {
   authOpenAPISchema ??= await auth.api.generateOpenAPISchema();
   return authOpenAPISchema;
 };
@@ -38,12 +42,14 @@ const withBetterAuthTag = (path: Path): Path => ({
 });
 
 export const getAuthOpenAPIDocumentation = async (
+  auth: Auth,
   prefix = "/auth"
-): Promise<Pick<AuthOpenAPISchema, "components" | "paths">> => {
-  const { components, paths } = await getAuthOpenAPISchema();
-  const prefixedPaths: AuthOpenAPISchema["paths"] = {};
+): Promise<AuthOpenAPIDocumentation> => {
+  const { components, paths } = await getAuthOpenAPISchema(auth);
+  const authPaths = paths as Record<string, Path>;
+  const prefixedPaths: Record<string, Path> = {};
 
-  for (const [path, pathItem] of Object.entries(paths)) {
+  for (const [path, pathItem] of Object.entries(authPaths)) {
     if (!shouldDocumentAuthPath(path)) {
       continue;
     }
@@ -53,6 +59,6 @@ export const getAuthOpenAPIDocumentation = async (
 
   return {
     components,
-    paths: prefixedPaths,
+    paths: prefixedPaths as AuthOpenAPISchema["paths"],
   };
 };
