@@ -17,18 +17,13 @@ import { applicationStatusVariant } from "../utils/variant-mapper";
 type ApplicationRowProps = {
   application: CommitteeApplication;
   isLead: boolean;
-  currentUserId: string;
 };
 
 function applicantLabel(userId: string): string {
   return `Applicant ${userId.slice(-4)}`;
 }
 
-export function ApplicationRow({
-  application,
-  isLead,
-  currentUserId,
-}: ApplicationRowProps) {
+export function ApplicationRow({ application, isLead }: ApplicationRowProps) {
   const review = useReviewApplication();
   const label = applicantLabel(application.userId);
 
@@ -68,7 +63,6 @@ export function ApplicationRow({
               onClick={() => {
                 review.mutate({
                   applicationId: application.id,
-                  reviewerId: currentUserId,
                   status: "accepted",
                 });
               }}
@@ -83,7 +77,6 @@ export function ApplicationRow({
               onClick={() => {
                 review.mutate({
                   applicationId: application.id,
-                  reviewerId: currentUserId,
                   status: "rejected",
                 });
               }}

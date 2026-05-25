@@ -1,4 +1,5 @@
 import { appEvents } from "../../lib/events";
+import { AppError } from "../../lib/errors";
 import type {
   CommitteeRepository,
   CreateCommitteeApplicationInput,
@@ -39,7 +40,10 @@ export const createCommitteeService = ({
   createDivision: async (input) => {
     // check quota is positive
     if (input.quota <= 0) {
-      throw new Error("Division quota must be a positive number.");
+      throw new AppError(
+        "BAD_REQUEST",
+        "Division quota must be a positive number."
+      );
     }
     return await repository.createDivision(input);
   },

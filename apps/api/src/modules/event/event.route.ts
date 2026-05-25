@@ -1,4 +1,6 @@
 import { Elysia, t } from "elysia";
+import { auth } from "../../lib/auth";
+import { AppError } from "../../lib/errors";
 import type { EventService } from "./event.service";
 
 const eventType = t.Union([t.Literal("internal"), t.Literal("external")]);
@@ -7,6 +9,20 @@ const eventStatus = t.Union([
   t.Literal("open"),
   t.Literal("closed"),
 ]);
+
+const requireAuthenticatedSession = async (
+  headers: Headers
+): Promise<string> => {
+  const authSession = await auth.api.getSession({
+    headers,
+  });
+
+  if (!authSession) {
+    throw new AppError("UNAUTHORIZED", "Authentication is required");
+  }
+
+  return authSession.user.id;
+};
 
 export const createEventRoutes = (eventService: EventService) =>
   new Elysia({
@@ -24,21 +40,28 @@ export const createEventRoutes = (eventService: EventService) =>
         tags: ["Event"],
       },
     })
-    .post("/", ({ body }) => eventService.createEvent(body), {
-      body: t.Object({
-        createdById: t.String(),
-        date: t.String({ format: "date-time" }),
-        description: t.Optional(t.String()),
-        location: t.String(),
-        name: t.String(),
-        quota: t.Number({ minimum: 1 }),
-        type: eventType,
-      }),
-      detail: {
-        summary: "Create an event",
-        tags: ["Event"],
-      },
-    })
+    .post(
+      "/",
+      async ({ body, request }) =>
+        eventService.createEvent({
+          ...body,
+          createdById: await requireAuthenticatedSession(request.headers),
+        }),
+      {
+        body: t.Object({
+          date: t.String({ format: "date-time" }),
+          description: t.Optional(t.String()),
+          location: t.String(),
+          name: t.String(),
+          quota: t.Number({ minimum: 1 }),
+          type: eventType,
+        }),
+        detail: {
+          summary: "Create an event",
+          tags: ["Event"],
+        },
+      }
+    )
     .get(
       "/:eventId",
       ({ params }) => eventService.getEventById(params.eventId),
@@ -89,14 +112,14 @@ export const createEventRoutes = (eventService: EventService) =>
     )
     .post(
       "/:eventId/registrations",
-      ({ body, params }) =>
-        eventService.registerParticipant(params.eventId, body.userId),
+      async ({ params, request }) =>
+        eventService.registerParticipant(
+          params.eventId,
+          await requireAuthenticatedSession(request.headers)
+        ),
       {
         params: t.Object({
           eventId: t.String(),
-        }),
-        body: t.Object({
-          userId: t.String(),
         }),
         detail: {
           summary: "Register a participant for an event",

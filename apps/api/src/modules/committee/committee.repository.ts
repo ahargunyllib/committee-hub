@@ -1,5 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import type { DB } from "../../db";
+import { AppError } from "../../lib/errors";
 import { committeeApplicationTable, divisionTable } from "./committee.schema";
 import type { CommitteeApplication, Division } from "./committee.schema";
 
@@ -58,7 +59,7 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
   createDivision: async (input) => {
     const [division] = await db.insert(divisionTable).values(input).returning();
     if (!division) {
-      throw new Error("Failed to create division.");
+      throw new AppError("INTERNAL_SERVER_ERROR", "Failed to create division.");
     }
     return division;
   },
@@ -69,7 +70,10 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
       // Validasi kuota secara atomic di dalam transaksi database
       if (input.quota !== undefined) {
         if (input.quota <= 0) {
-          throw new Error("Division quota must be greater than zero.");
+          throw new AppError(
+            "BAD_REQUEST",
+            "Division quota must be greater than zero."
+          );
         }
 
         const acceptedApps = await tx
@@ -84,7 +88,8 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
 
         // Mencegah Ketua Panitia menurunkan kuota lebih kecil dari jumlah anggota yang sudah diterima
         if (input.quota < acceptedApps.length) {
-          throw new Error(
+          throw new AppError(
+            "CONFLICT",
             "Cannot decrease quota below current accepted members."
           );
         }
@@ -98,7 +103,7 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
         .returning();
 
       if (!division) {
-        throw new Error("Failed to update division.");
+        throw new AppError("NOT_FOUND", "Division not found.");
       }
       return division;
     });
@@ -112,7 +117,10 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
         .returning();
 
       if (!application) {
-        throw new Error("Failed to create application.");
+        throw new AppError(
+          "INTERNAL_SERVER_ERROR",
+          "Failed to create application."
+        );
       }
       return application;
     } catch (error) {
@@ -123,7 +131,10 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
         "code" in error &&
         error.code === "23505"
       ) {
-        throw new Error("User has already applied to this division.");
+        throw new AppError(
+          "CONFLICT",
+          "User has already applied to this division."
+        );
       }
       throw error;
     }
@@ -147,12 +158,15 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
         .limit(1);
 
       if (!currentApp) {
-        throw new Error("Application not found.");
+        throw new AppError("NOT_FOUND", "Application not found.");
       }
 
       // 2. Prevent re-reviewing already processed applications
       if (currentApp.status !== "pending") {
-        throw new Error(`Application has already been ${currentApp.status}.`);
+        throw new AppError(
+          "CONFLICT",
+          `Application has already been ${currentApp.status}.`
+        );
       }
 
       // 3. Conditional validation for acceptance criteria
@@ -164,7 +178,7 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
           .limit(1);
 
         if (!division) {
-          throw new Error("Associated division not found.");
+          throw new AppError("NOT_FOUND", "Associated division not found.");
         }
 
         // Count current accepted members inside the isolated transaction
@@ -179,7 +193,7 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
           );
 
         if (acceptedApps.length >= division.quota) {
-          throw new Error("Division quota is already full.");
+          throw new AppError("CONFLICT", "Division quota is already full.");
         }
       }
 
@@ -195,7 +209,10 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
         .returning();
 
       if (!application) {
-        throw new Error("Failed to review application.");
+        throw new AppError(
+          "INTERNAL_SERVER_ERROR",
+          "Failed to review application."
+        );
       }
       return application;
     });

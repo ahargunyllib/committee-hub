@@ -9,32 +9,22 @@ import {
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Button } from "@/shared/components/ui/button";
+import { formatFormErrors } from "@/shared/lib/form-errors";
 
 import { useApplyDivisionForm } from "../hooks/use-apply-division-form";
 
 type ApplyDialogProps = {
   divisionId: string;
-  userId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-function formatErrors(errors: unknown[]): string | null {
-  if (errors.length === 0) {
-    return null;
-  }
-  return errors
-    .map((error) => (error instanceof Error ? error.message : String(error)))
-    .join(", ");
-}
-
 export function ApplyDialog({
   divisionId,
-  userId,
   open,
   onOpenChange,
 }: ApplyDialogProps) {
-  const { form, mutation } = useApplyDivisionForm(divisionId, userId, () => {
+  const { form, mutation } = useApplyDivisionForm(divisionId, () => {
     onOpenChange(false);
   });
 
@@ -57,7 +47,7 @@ export function ApplyDialog({
         >
           <form.Field name="motivation">
             {(field) => {
-              const error = formatErrors(field.state.meta.errors);
+              const error = formatFormErrors(field.state.meta.errors);
 
               return (
                 <div className="space-y-1.5">

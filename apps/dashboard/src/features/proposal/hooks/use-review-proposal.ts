@@ -12,7 +12,6 @@ type ReviewProposalInput = {
   decision: ProposalDecision;
   level: ProposalScope;
   notes?: string;
-  reviewerId: string;
 };
 
 export function useReviewProposal(proposalId: string) {

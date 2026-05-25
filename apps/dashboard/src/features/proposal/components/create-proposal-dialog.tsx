@@ -21,6 +21,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { api } from "@/shared/lib/api";
+import { formatFormErrors } from "@/shared/lib/form-errors";
 import type { Event } from "@/shared/lib/types";
 
 import { useCreateProposalForm } from "../hooks/use-create-proposal-form";
@@ -29,15 +30,6 @@ type CreateProposalDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
-
-function formatErrors(errors: unknown[]): string | null {
-  if (errors.length === 0) {
-    return null;
-  }
-  return errors
-    .map((error) => (error instanceof Error ? error.message : String(error)))
-    .join(", ");
-}
 
 export function CreateProposalDialog({
   onOpenChange,
@@ -71,7 +63,7 @@ export function CreateProposalDialog({
           <form.Field name="eventId">
             {(field) => (
               <FieldItem
-                error={formatErrors(field.state.meta.errors)}
+                error={formatFormErrors(field.state.meta.errors)}
                 label="Event"
               >
                 <Select
@@ -95,7 +87,7 @@ export function CreateProposalDialog({
           <form.Field name="title">
             {(field) => (
               <FieldItem
-                error={formatErrors(field.state.meta.errors)}
+                error={formatFormErrors(field.state.meta.errors)}
                 label="Title"
               >
                 <Input
@@ -112,7 +104,7 @@ export function CreateProposalDialog({
           <form.Field name="scope">
             {(field) => (
               <FieldItem
-                error={formatErrors(field.state.meta.errors)}
+                error={formatFormErrors(field.state.meta.errors)}
                 label="Scope"
               >
                 <Select
@@ -138,7 +130,7 @@ export function CreateProposalDialog({
           <form.Field name="documentUrl">
             {(field) => (
               <FieldItem
-                error={formatErrors(field.state.meta.errors)}
+                error={formatFormErrors(field.state.meta.errors)}
                 label="Document URL"
               >
                 <Input
@@ -156,7 +148,7 @@ export function CreateProposalDialog({
           <form.Field name="description">
             {(field) => (
               <FieldItem
-                error={formatErrors(field.state.meta.errors)}
+                error={formatFormErrors(field.state.meta.errors)}
                 label="Description"
               >
                 <Textarea

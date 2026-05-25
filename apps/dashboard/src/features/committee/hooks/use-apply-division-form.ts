@@ -14,7 +14,6 @@ export type ApplyDivisionInput = z.infer<typeof applyDivisionSchema>;
 
 export function useApplyDivisionForm(
   divisionId: string,
-  userId: string,
   onSuccess?: (application: CommitteeApplication) => void
 ) {
   const queryClient = useQueryClient();
@@ -23,10 +22,7 @@ export function useApplyDivisionForm(
     mutationFn: (input: ApplyDivisionInput) =>
       api.post<CommitteeApplication>(
         `/committee/divisions/${divisionId}/applications`,
-        {
-          userId,
-          motivation: input.motivation,
-        }
+        { motivation: input.motivation }
       ),
     onSuccess: (application) => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });

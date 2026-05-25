@@ -8,8 +8,8 @@ export function useRegisterEvent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ eventId, userId }: { eventId: string; userId: string }) =>
-      api.post<Registration>(`/events/${eventId}/registrations`, { userId }),
+    mutationFn: (eventId: string) =>
+      api.post<Registration>(`/events/${eventId}/registrations`),
     onError: (error: Error) => {
       toast.error(error.message || "Failed to register");
     },

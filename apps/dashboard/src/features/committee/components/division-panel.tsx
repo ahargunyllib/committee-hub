@@ -55,7 +55,6 @@ export function DivisionPanel({
         disabled={divisionFull}
         divisionId={division.id}
         divisionName={division.name}
-        userId={currentUser.id}
       />
     );
   } else if (myApplication) {
@@ -94,7 +93,6 @@ export function DivisionPanel({
             {applications.map((application) => (
               <ApplicationRow
                 application={application}
-                currentUserId={currentUser.id}
                 isLead={isLead}
                 key={application.id}
               />

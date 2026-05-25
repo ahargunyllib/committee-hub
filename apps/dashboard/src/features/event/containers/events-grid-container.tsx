@@ -66,12 +66,7 @@ export function EventsGridContainer() {
     content = (
       <div className="grid gap-6 [grid-template-columns:repeat(auto-fill,minmax(320px,1fr))]">
         {events.map((event) => (
-          <EventCard
-            event={event}
-            key={event.id}
-            userId={user.id}
-            userRole={user.role}
-          />
+          <EventCard event={event} key={event.id} userRole={user.role} />
         ))}
       </div>
     );

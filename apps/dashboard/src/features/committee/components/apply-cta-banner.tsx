@@ -9,14 +9,12 @@ import { ApplyDialog } from "./apply-dialog";
 type ApplyCtaBannerProps = {
   divisionId: string;
   divisionName: string;
-  userId: string;
   disabled?: boolean;
 };
 
 export function ApplyCtaBanner({
   divisionId,
   divisionName,
-  userId,
   disabled,
 }: ApplyCtaBannerProps) {
   const [open, setOpen] = useState(false);
@@ -39,12 +37,7 @@ export function ApplyCtaBanner({
         <HugeiconsIcon icon={PlusSignIcon} />
         {disabled ? "Division full" : "Apply"}
       </Button>
-      <ApplyDialog
-        divisionId={divisionId}
-        onOpenChange={setOpen}
-        open={open}
-        userId={userId}
-      />
+      <ApplyDialog divisionId={divisionId} onOpenChange={setOpen} open={open} />
     </div>
   );
 }

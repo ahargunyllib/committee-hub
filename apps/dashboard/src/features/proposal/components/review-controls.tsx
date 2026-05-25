@@ -10,11 +10,9 @@ import { useReviewProposal } from "../hooks/use-review-proposal";
 export function ReviewControls({
   activeLevel,
   proposalId,
-  userId,
 }: {
   activeLevel: ProposalScope;
   proposalId: string;
-  userId: string;
 }) {
   const [notes, setNotes] = useState("");
   const mutation = useReviewProposal(proposalId);
@@ -24,7 +22,6 @@ export function ReviewControls({
       decision,
       level: activeLevel,
       notes,
-      reviewerId: userId,
     });
   };
 

@@ -10,6 +10,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Button } from "@/shared/components/ui/button";
+import { formatFormErrors } from "@/shared/lib/form-errors";
 import type { Division } from "@/shared/lib/types";
 
 import { useCreateDivisionForm } from "../hooks/use-create-division-form";
@@ -20,15 +21,6 @@ type CreateDivisionDialogProps = {
   onOpenChange: (open: boolean) => void;
   onCreated?: (division: Division) => void;
 };
-
-function formatErrors(errors: unknown[]): string | null {
-  if (errors.length === 0) {
-    return null;
-  }
-  return errors
-    .map((error) => (error instanceof Error ? error.message : String(error)))
-    .join(", ");
-}
 
 export function CreateDivisionDialog({
   eventId,
@@ -60,7 +52,7 @@ export function CreateDivisionDialog({
         >
           <form.Field name="name">
             {(field) => {
-              const error = formatErrors(field.state.meta.errors);
+              const error = formatFormErrors(field.state.meta.errors);
 
               return (
                 <div className="space-y-1.5">
@@ -83,7 +75,7 @@ export function CreateDivisionDialog({
           </form.Field>
           <form.Field name="quota">
             {(field) => {
-              const error = formatErrors(field.state.meta.errors);
+              const error = formatFormErrors(field.state.meta.errors);
 
               return (
                 <div className="space-y-1.5">
@@ -107,7 +99,7 @@ export function CreateDivisionDialog({
           </form.Field>
           <form.Field name="description">
             {(field) => {
-              const error = formatErrors(field.state.meta.errors);
+              const error = formatFormErrors(field.state.meta.errors);
 
               return (
                 <div className="space-y-1.5">

@@ -9,7 +9,6 @@ import type {
 
 type ReviewApplicationInput = {
   applicationId: string;
-  reviewerId: string;
   status: Extract<ApplicationStatus, "accepted" | "rejected">;
 };
 
@@ -17,14 +16,10 @@ export function useReviewApplication() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      applicationId,
-      reviewerId,
-      status,
-    }: ReviewApplicationInput) =>
+    mutationFn: ({ applicationId, status }: ReviewApplicationInput) =>
       api.patch<CommitteeApplication>(
         `/committee/applications/${applicationId}/review`,
-        { reviewerId, status }
+        { status }
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });

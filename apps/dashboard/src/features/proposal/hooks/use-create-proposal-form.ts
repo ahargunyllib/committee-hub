@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { api } from "@/shared/lib/api";
-import { useSession } from "@/shared/lib/auth";
 import type { Proposal, ProposalScope } from "@/shared/lib/types";
 
 const createProposalSchema = z.object({
@@ -21,14 +20,12 @@ export type CreateProposalInput = z.infer<typeof createProposalSchema>;
 
 export function useCreateProposalForm(onSuccess?: () => void) {
   const queryClient = useQueryClient();
-  const { data: session } = useSession();
 
   const mutation = useMutation({
     mutationFn: (value: CreateProposalInput) =>
       api.post<Proposal>("/proposals", {
         ...value,
         documentUrl: value.documentUrl || undefined,
-        submittedById: session?.user.id,
       }),
     onError: (error: Error) => {
       toast.error(error.message || "Failed to submit proposal");

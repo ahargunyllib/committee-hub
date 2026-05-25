@@ -112,11 +112,7 @@ export function ProposalDetail({
         />
 
         {reviewerCanAct ? (
-          <ReviewControls
-            activeLevel={activeLevel}
-            proposalId={proposal.id}
-            userId={userId}
-          />
+          <ReviewControls activeLevel={activeLevel} proposalId={proposal.id} />
         ) : null}
 
         {canResubmit ? (

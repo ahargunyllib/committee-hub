@@ -1,5 +1,6 @@
 import { and, eq, ilike, type SQL } from "drizzle-orm";
 import type { DB } from "../../db";
+import { AppError } from "../../lib/errors";
 import { eventTable, registrationTable, ticketTable } from "./event.schema";
 import type { Event, Registration, Ticket } from "./event.schema";
 
@@ -71,7 +72,7 @@ export const createEventRepository = (db: DB): EventRepository => ({
       .returning();
 
     if (!event) {
-      throw new Error("Failed to create event.");
+      throw new AppError("INTERNAL_SERVER_ERROR", "Failed to create event.");
     }
     return event;
   },
@@ -99,7 +100,7 @@ export const createEventRepository = (db: DB): EventRepository => ({
       .returning();
 
     if (!event) {
-      throw new Error("Failed to update event.");
+      throw new AppError("NOT_FOUND", "Event not found.");
     }
     return event;
   },
@@ -122,10 +123,10 @@ export const createEventRepository = (db: DB): EventRepository => ({
         .limit(1);
 
       if (!event) {
-        throw new Error("Event not found.");
+        throw new AppError("NOT_FOUND", "Event not found.");
       }
       if (event.status !== "open") {
-        throw new Error("Event is not open.");
+        throw new AppError("CONFLICT", "Event is not open.");
       }
 
       // 2. Check current registrations inside the transaction
@@ -135,11 +136,14 @@ export const createEventRepository = (db: DB): EventRepository => ({
         .where(eq(registrationTable.eventId, eventId));
 
       if (currentRegistrations.length >= event.quota) {
-        throw new Error("Event registration quota is full.");
+        throw new AppError("CONFLICT", "Event registration quota is full.");
       }
 
       if (currentRegistrations.some((reg) => reg.userId === userId)) {
-        throw new Error("User is already registered for this event.");
+        throw new AppError(
+          "CONFLICT",
+          "User is already registered for this event."
+        );
       }
 
       // 3. Proceed with inserts
@@ -149,7 +153,10 @@ export const createEventRepository = (db: DB): EventRepository => ({
         .returning();
 
       if (!registration) {
-        throw new Error("Failed to create registration.");
+        throw new AppError(
+          "INTERNAL_SERVER_ERROR",
+          "Failed to create registration."
+        );
       }
 
       await tx
@@ -185,7 +192,10 @@ export const createEventRepository = (db: DB): EventRepository => ({
       .returning();
 
     if (!ticket) {
-      throw new Error("Ticket not found or already used/cancelled.");
+      throw new AppError(
+        "CONFLICT",
+        "Ticket not found or already used/cancelled."
+      );
     }
 
     return ticket;

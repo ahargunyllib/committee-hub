@@ -1,4 +1,5 @@
 import { appEvents } from "../../lib/events";
+import { AppError } from "../../lib/errors";
 import type {
   CreateEventInput,
   EventRepository,
@@ -37,12 +38,15 @@ export const createEventService = ({
     // parse event date into a valid future date
     const eventDate = new Date(input.date);
     if (Number.isNaN(eventDate.getTime()) || eventDate <= new Date()) {
-      throw new Error("Event date must be a valid date in the future.");
+      throw new AppError(
+        "BAD_REQUEST",
+        "Event date must be a valid date in the future."
+      );
     }
 
     // enforce quota is positive and compatible with event type rules
     if (input.quota <= 0) {
-      throw new Error("Event quota must be a positive number.");
+      throw new AppError("BAD_REQUEST", "Event quota must be positive.");
     }
 
     // default new events to draft until proposal approval opens them
@@ -61,14 +65,15 @@ export const createEventService = ({
     // 1. Check event exists
     const existingEvent = await repository.getEventById(eventId);
     if (!existingEvent) {
-      throw new Error("Event not found.");
+      throw new AppError("NOT_FOUND", "Event not found.");
     }
 
     // 2. Validate updated date (if provided)
     if (input.date) {
       const eventDate = new Date(input.date);
       if (Number.isNaN(eventDate.getTime()) || eventDate <= new Date()) {
-        throw new Error(
+        throw new AppError(
+          "BAD_REQUEST",
           "Updated event date must be a valid date in the future."
         );
       }
@@ -76,12 +81,18 @@ export const createEventService = ({
 
     // 3. Validate updated quota (if provided)
     if (input.quota !== undefined && input.quota <= 0) {
-      throw new Error("Updated event quota must be greater than zero.");
+      throw new AppError(
+        "BAD_REQUEST",
+        "Updated event quota must be greater than zero."
+      );
     }
 
     // 4. Prevent reopening closed events without an explicit admin workflow
     if (existingEvent.status === "closed" && input.status === "open") {
-      throw new Error("Cannot reopen an event once it has been closed.");
+      throw new AppError(
+        "CONFLICT",
+        "Cannot reopen an event once it has been closed."
+      );
     }
 
     // 5. Prevent opening an event until its proposal is approved

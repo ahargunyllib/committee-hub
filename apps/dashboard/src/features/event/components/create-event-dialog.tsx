@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Textarea } from "@/shared/components/ui/textarea";
+import { formatFormErrors } from "@/shared/lib/form-errors";
 
 import { useCreateEventForm } from "../hooks/use-create-event-form";
 
@@ -26,15 +27,6 @@ type CreateEventDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
-
-function formatErrors(errors: unknown[]): string | null {
-  if (errors.length === 0) {
-    return null;
-  }
-  return errors
-    .map((error) => (error instanceof Error ? error.message : String(error)))
-    .join(", ");
-}
 
 export function CreateEventDialog({
   onOpenChange,
@@ -64,7 +56,7 @@ export function CreateEventDialog({
           <form.Field name="name">
             {(field) => (
               <FieldItem
-                error={formatErrors(field.state.meta.errors)}
+                error={formatFormErrors(field.state.meta.errors)}
                 label="Name"
               >
                 <Input
@@ -83,7 +75,7 @@ export function CreateEventDialog({
             <form.Field name="date">
               {(field) => (
                 <FieldItem
-                  error={formatErrors(field.state.meta.errors)}
+                  error={formatFormErrors(field.state.meta.errors)}
                   label="Date"
                 >
                   <Input
@@ -101,7 +93,7 @@ export function CreateEventDialog({
             <form.Field name="quota">
               {(field) => (
                 <FieldItem
-                  error={formatErrors(field.state.meta.errors)}
+                  error={formatFormErrors(field.state.meta.errors)}
                   label="Quota"
                 >
                   <Input
@@ -121,7 +113,7 @@ export function CreateEventDialog({
           <form.Field name="location">
             {(field) => (
               <FieldItem
-                error={formatErrors(field.state.meta.errors)}
+                error={formatFormErrors(field.state.meta.errors)}
                 label="Location"
               >
                 <Input
@@ -139,7 +131,7 @@ export function CreateEventDialog({
           <form.Field name="type">
             {(field) => (
               <FieldItem
-                error={formatErrors(field.state.meta.errors)}
+                error={formatFormErrors(field.state.meta.errors)}
                 label="Type"
               >
                 <Select
@@ -162,7 +154,7 @@ export function CreateEventDialog({
           <form.Field name="description">
             {(field) => (
               <FieldItem
-                error={formatErrors(field.state.meta.errors)}
+                error={formatFormErrors(field.state.meta.errors)}
                 label="Description"
               >
                 <Textarea

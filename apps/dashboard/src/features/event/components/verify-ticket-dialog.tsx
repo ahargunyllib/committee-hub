@@ -9,6 +9,7 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import { formatFormErrors } from "@/shared/lib/form-errors";
 
 import { useVerifyTicketForm } from "../hooks/use-verify-ticket-form";
 
@@ -16,15 +17,6 @@ type VerifyTicketDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
-
-function formatErrors(errors: unknown[]): string | null {
-  if (errors.length === 0) {
-    return null;
-  }
-  return errors
-    .map((error) => (error instanceof Error ? error.message : String(error)))
-    .join(", ");
-}
 
 export function VerifyTicketDialog({
   onOpenChange,
@@ -53,7 +45,7 @@ export function VerifyTicketDialog({
         >
           <form.Field name="code">
             {(field) => {
-              const error = formatErrors(field.state.meta.errors);
+              const error = formatFormErrors(field.state.meta.errors);
               return (
                 <div className="space-y-1.5">
                   <Label htmlFor={field.name}>Ticket code</Label>

@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { api } from "@/shared/lib/api";
-import { useSession } from "@/shared/lib/auth";
 import type { Event, EventType } from "@/shared/lib/types";
 
 const createEventSchema = z.object({
@@ -20,13 +19,11 @@ export type CreateEventInput = z.infer<typeof createEventSchema>;
 
 export function useCreateEventForm(onSuccess?: () => void) {
   const queryClient = useQueryClient();
-  const { data: session } = useSession();
 
   const mutation = useMutation({
     mutationFn: (value: CreateEventInput) =>
       api.post<Event>("/events", {
         ...value,
-        createdById: session?.user.id,
         date: new Date(value.date).toISOString(),
       }),
     onError: (error: Error) => {

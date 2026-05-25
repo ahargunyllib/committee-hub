@@ -19,11 +19,10 @@ import { eventStatusVariant } from "../utils/variant-mapper";
 
 type EventCardProps = {
   event: Event;
-  userId: string;
   userRole: string;
 };
 
-export function EventCard({ event, userId, userRole }: EventCardProps) {
+export function EventCard({ event, userRole }: EventCardProps) {
   const updateStatus = useUpdateEventStatus();
   const register = useRegisterEvent();
   const canManage = canAccess(userRole, RESOURCES.CREATE_EVENT);
@@ -64,7 +63,7 @@ export function EventCard({ event, userId, userRole }: EventCardProps) {
             <Button
               disabled={register.isPending}
               onClick={() => {
-                register.mutate({ eventId: event.id, userId });
+                register.mutate(event.id);
               }}
               size="sm"
               type="button"

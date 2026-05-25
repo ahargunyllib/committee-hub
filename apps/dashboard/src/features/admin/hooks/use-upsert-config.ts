@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { api } from "@/shared/lib/api";
-import { useSession } from "@/shared/lib/auth";
 import type { ConfigValueType, SystemConfig } from "@/shared/lib/types";
 
 export type UpsertConfigInput = {
@@ -14,13 +13,11 @@ export type UpsertConfigInput = {
 
 export function useUpsertConfig(onSuccess?: () => void) {
   const queryClient = useQueryClient();
-  const { data: session } = useSession();
 
   return useMutation({
     mutationFn: (input: UpsertConfigInput) =>
       api.put<SystemConfig>(`/admin/config/${input.key}`, {
         description: input.description,
-        updatedById: session?.user.id,
         value: input.value,
         valueType: input.valueType,
       }),

@@ -1,10 +1,26 @@
 import { Elysia, t } from "elysia";
+import { auth } from "../../lib/auth";
+import { AppError } from "../../lib/errors";
 import type { CommitteeService } from "./committee.service";
 
 const applicationDecision = t.Union([
   t.Literal("accepted"),
   t.Literal("rejected"),
 ]);
+
+const requireAuthenticatedSession = async (
+  headers: Headers
+): Promise<string> => {
+  const authSession = await auth.api.getSession({
+    headers,
+  });
+
+  if (!authSession) {
+    throw new AppError("UNAUTHORIZED", "Authentication is required");
+  }
+
+  return authSession.user.id;
+};
 
 export const createCommitteeRoutes = (committeeService: CommitteeService) =>
   new Elysia({
@@ -67,10 +83,11 @@ export const createCommitteeRoutes = (committeeService: CommitteeService) =>
     )
     .post(
       "/divisions/:divisionId/applications",
-      ({ body, params }) =>
+      async ({ body, params, request }) =>
         committeeService.createApplication({
           ...body,
           divisionId: params.divisionId,
+          userId: await requireAuthenticatedSession(request.headers),
         }),
       {
         params: t.Object({
@@ -78,7 +95,6 @@ export const createCommitteeRoutes = (committeeService: CommitteeService) =>
         }),
         body: t.Object({
           motivation: t.Optional(t.String()),
-          userId: t.String(),
         }),
         detail: {
           summary: "Apply to a committee division",
@@ -102,14 +118,16 @@ export const createCommitteeRoutes = (committeeService: CommitteeService) =>
     )
     .patch(
       "/applications/:applicationId/review",
-      ({ body, params }) =>
-        committeeService.reviewApplication(params.applicationId, body),
+      async ({ body, params, request }) =>
+        committeeService.reviewApplication(params.applicationId, {
+          ...body,
+          reviewerId: await requireAuthenticatedSession(request.headers),
+        }),
       {
         params: t.Object({
           applicationId: t.String(),
         }),
         body: t.Object({
-          reviewerId: t.String(),
           status: applicationDecision,
         }),
         detail: {
