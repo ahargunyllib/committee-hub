@@ -1,4 +1,4 @@
-import { CloudflareAdapter } from "elysia/adapter/cloudflare-worker";
+import { WebStandardAdapter } from "elysia/adapter/web-standard";
 import { runWithBackgroundTaskRunner } from "./lib/background-tasks";
 
 type HyperdriveBinding = {
@@ -65,7 +65,7 @@ const applyWorkerBindings = (bindings: ApiWorkerBindings): void => {
 
 const createWorkerApp = async (): Promise<WorkerApp> => {
   const { createApp } = await import("./app");
-  return createApp(CloudflareAdapter).compile();
+  return createApp({ adapter: WebStandardAdapter, aot: false }).compile();
 };
 
 const getApp = async (bindings: ApiWorkerBindings): Promise<WorkerApp> => {

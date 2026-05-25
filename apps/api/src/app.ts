@@ -32,6 +32,16 @@ import { authContextPlugin } from "./middleware/auth-context";
 import { errorHandlerPlugin } from "./middleware/error-handler";
 import { requestContextPlugin } from "./middleware/request-context";
 
+type CreateAppOptions = {
+  adapter?: ElysiaAdapter;
+  aot?: boolean;
+};
+
+const createElysiaConfig = ({ adapter, aot }: CreateAppOptions) => ({
+  ...(adapter ? { adapter } : {}),
+  ...(typeof aot === "boolean" ? { aot } : {}),
+});
+
 const localOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 
 const isAllowedOrigin = (request: Request): boolean => {
@@ -68,8 +78,8 @@ const devService = createDevService({
 
 registerNotificationListeners(notificationService);
 
-export const createApp = (adapter?: ElysiaAdapter) =>
-  new Elysia({ adapter })
+export const createApp = (options: CreateAppOptions = {}) =>
+  new Elysia(createElysiaConfig(options))
     .use(errorHandlerPlugin)
     .use(requestContextPlugin)
     .use(authContextPlugin)
