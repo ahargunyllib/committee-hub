@@ -56,13 +56,20 @@ export const createProposalService = ({
     // reject duplicate review for same level and submission round
     // compute next proposal status from decision and remaining levels
     // persist approval history and proposal status atomically
+    const proposalBeforeReview = await repository.getProposalById(proposalId);
     const approval = await repository.reviewProposal(proposalId, input);
+    const proposalAfterReview = await repository.getProposalById(proposalId);
 
-    if (input.decision !== "approved") {
+    if (
+      proposalBeforeReview &&
+      proposalAfterReview &&
+      proposalAfterReview.status !== proposalBeforeReview.status &&
+      proposalAfterReview.status !== "pending"
+    ) {
       appEvents.emit("proposal.statusChanged", {
         proposalId,
-        recipientUserId: approval.reviewerId,
-        status: input.decision,
+        recipientUserId: proposalBeforeReview.submittedById,
+        status: proposalAfterReview.status,
       });
     }
 

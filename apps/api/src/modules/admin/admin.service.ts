@@ -23,12 +23,10 @@ export const createAdminService = ({
   repository,
 }: CreateAdminServiceContext): AdminService => ({
   listUsers: () => repository.listUsers(),
-  // check actor is admin
   // prevent demoting the last admin when that invariant is introduced
   // update only the role field
   updateUserRole: (userId, input) => repository.updateUserRole(userId, input),
   listSystemConfigs: () => repository.listSystemConfigs(),
-  // check actor is admin
   // parse value according to valueType before persisting
   // keep system config as the single source of truth
   upsertSystemConfig: (input) => repository.upsertSystemConfig(input),

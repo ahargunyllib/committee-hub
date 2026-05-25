@@ -1,0 +1,149 @@
+{
+  "admin": {
+    "updateUserRole": {
+      "method": "PATCH",
+      "path": "/admin/users/usr_seed_satria/role",
+      "body": {
+        "role": "ketua_panitia"
+      }
+    },
+    "upsertSystemConfig": {
+      "method": "PUT",
+      "path": "/admin/config/proposal.review_sla_days",
+      "body": {
+        "description": "Default SLA in days for proposal review reminders.",
+        "updatedById": "usr_seed_admin",
+        "value": "5",
+        "valueType": "number"
+      }
+    }
+  },
+  "proposal": {
+    "create": {
+      "method": "POST",
+      "path": "/proposals",
+      "body": {
+        "description": "New faculty proposal for a technical showcase.",
+        "documentUrl": "https://example.com/proposals/tech-showcase.pdf",
+        "eventId": "evt_seed_volunteer_briefing",
+        "scope": "fakultas",
+        "submittedById": "usr_seed_nadia",
+        "title": "Tech Showcase Proposal"
+      }
+    },
+    "update": {
+      "method": "PATCH",
+      "path": "/proposals/prp_seed_ui_workshop",
+      "body": {
+        "description": "Updated proposal with revised budget and mentor list.",
+        "documentUrl": "https://example.com/proposals/ui-workshop-v2.pdf",
+        "scope": "ormawa",
+        "title": "Workshop UI Engineering Revised"
+      }
+    },
+    "reviewApproveNext": {
+      "method": "POST",
+      "path": "/proposals/prp_seed_data_ai/reviews",
+      "body": {
+        "decision": "approved",
+        "level": "fakultas",
+        "notes": "Budget and event plan approved.",
+        "reviewerId": "usr_seed_fakultas"
+      }
+    },
+    "reviewRequestRevision": {
+      "method": "POST",
+      "path": "/proposals/prp_seed_volunteer_briefing/reviews",
+      "body": {
+        "decision": "revision_requested",
+        "level": "ormawa",
+        "notes": "Please clarify volunteer recruitment timeline.",
+        "reviewerId": "usr_seed_ormawa"
+      }
+    }
+  },
+  "event": {
+    "create": {
+      "method": "POST",
+      "path": "/events",
+      "body": {
+        "createdById": "usr_seed_nadia",
+        "date": "2026-06-12T09:00:00.000+07:00",
+        "description": "Internal coordination meeting for committee leads.",
+        "location": "Ruang Rapat BEM",
+        "name": "Committee Leads Sync",
+        "quota": 60,
+        "type": "internal"
+      }
+    },
+    "update": {
+      "method": "PATCH",
+      "path": "/events/evt_seed_volunteer_briefing",
+      "body": {
+        "date": "2026-06-04T10:00:00.000+07:00",
+        "location": "Auditorium FIK",
+        "quota": 150,
+        "status": "open"
+      }
+    },
+    "registerParticipant": {
+      "method": "POST",
+      "path": "/events/evt_seed_acoustic/registrations",
+      "body": {
+        "userId": "usr_seed_maya"
+      }
+    }
+  },
+  "committee": {
+    "createDivision": {
+      "method": "POST",
+      "path": "/committee/events/evt_seed_acoustic/divisions",
+      "body": {
+        "description": "Handles venue preparation and backstage support.",
+        "name": "Stage Operations",
+        "quota": 20
+      }
+    },
+    "updateDivision": {
+      "method": "PATCH",
+      "path": "/committee/divisions/div_seed_data_ai_ops",
+      "body": {
+        "description": "Handles logistics, venue setup, and rundown execution.",
+        "name": "Operations",
+        "quota": 30
+      }
+    },
+    "createApplication": {
+      "method": "POST",
+      "path": "/committee/divisions/div_seed_data_ai_media/applications",
+      "body": {
+        "motivation": "I can help with social media design and publication.",
+        "userId": "usr_seed_satria"
+      }
+    },
+    "reviewApplication": {
+      "method": "PATCH",
+      "path": "/committee/applications/app_seed_maya_media/review",
+      "body": {
+        "reviewerId": "usr_seed_nadia",
+        "status": "accepted"
+      }
+    }
+  },
+  "notification": {
+    "markAsRead": {
+      "method": "PATCH",
+      "path": "/notifications/ntf_seed_registration_success/read",
+      "body": {
+        "userId": "usr_seed_satria"
+      }
+    },
+    "markAllAsRead": {
+      "method": "PATCH",
+      "path": "/notifications/read-all",
+      "body": {
+        "userId": "usr_seed_satria"
+      }
+    }
+  }
+}

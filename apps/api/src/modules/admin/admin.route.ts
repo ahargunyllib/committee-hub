@@ -1,4 +1,6 @@
 import { Elysia, t } from "elysia";
+import { auth } from "../../lib/auth";
+import { AppError } from "../../lib/errors";
 import type { AdminService } from "./admin.service";
 
 const userRole = t.Union([
@@ -17,11 +19,30 @@ const configValueType = t.Union([
   t.Literal("json"),
 ]);
 
+const requireAdminSession = async (headers: Headers): Promise<string> => {
+  const authSession = await auth.api.getSession({
+    headers,
+  });
+
+  if (!authSession) {
+    throw new AppError("UNAUTHORIZED", "Authentication is required");
+  }
+
+  if (authSession.user.role !== "admin") {
+    throw new AppError("FORBIDDEN", "Admin role is required");
+  }
+
+  return authSession.user.id;
+};
+
 export const createAdminRoutes = (adminService: AdminService) =>
   new Elysia({
     name: "admin-routes",
     prefix: "/admin",
   })
+    .derive(async ({ request }) => ({
+      adminActorUserId: await requireAdminSession(request.headers),
+    }))
     .get("/users", () => adminService.listUsers(), {
       detail: {
         summary: "List users",
@@ -30,7 +51,11 @@ export const createAdminRoutes = (adminService: AdminService) =>
     })
     .patch(
       "/users/:userId/role",
-      ({ body, params }) => adminService.updateUserRole(params.userId, body),
+      ({ adminActorUserId, body, params }) =>
+        adminService.updateUserRole(params.userId, {
+          actorUserId: adminActorUserId,
+          role: body.role,
+        }),
       {
         params: t.Object({
           userId: t.String(),
@@ -52,9 +77,10 @@ export const createAdminRoutes = (adminService: AdminService) =>
     })
     .put(
       "/config/:key",
-      ({ body, params }) =>
+      ({ adminActorUserId, body, params }) =>
         adminService.upsertSystemConfig({
           ...body,
+          actorUserId: adminActorUserId,
           key: params.key,
         }),
       {
@@ -63,7 +89,6 @@ export const createAdminRoutes = (adminService: AdminService) =>
         }),
         body: t.Object({
           description: t.Optional(t.String()),
-          updatedById: t.Optional(t.String()),
           value: t.String(),
           valueType: configValueType,
         }),
