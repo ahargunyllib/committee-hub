@@ -65,17 +65,44 @@ export const createCommitteeRepository = (db: DB): CommitteeRepository => ({
 
   // Update mutable division fields
   updateDivision: async (divisionId, input) => {
-    const [division] = await db
-      .update(divisionTable)
-      .set(input)
-      .where(eq(divisionTable.id, divisionId))
-      .returning();
-    if (!division) {
-      throw new Error("Failed to update division.");
-    }
-    return division;
-  },
+    return await db.transaction(async (tx) => {
+      // Validasi kuota secara atomic di dalam transaksi database
+      if (input.quota !== undefined) {
+        if (input.quota <= 0) {
+          throw new Error("Division quota must be greater than zero.");
+        }
 
+        const acceptedApps = await tx
+          .select()
+          .from(committeeApplicationTable)
+          .where(
+            and(
+              eq(committeeApplicationTable.divisionId, divisionId),
+              eq(committeeApplicationTable.status, "accepted")
+            )
+          );
+
+        // Mencegah Ketua Panitia menurunkan kuota lebih kecil dari jumlah anggota yang sudah diterima
+        if (input.quota < acceptedApps.length) {
+          throw new Error(
+            "Cannot decrease quota below current accepted members."
+          );
+        }
+      }
+
+      // Jika aman, lakukan update
+      const [division] = await tx
+        .update(divisionTable)
+        .set(input)
+        .where(eq(divisionTable.id, divisionId))
+        .returning();
+
+      if (!division) {
+        throw new Error("Failed to update division.");
+      }
+      return division;
+    });
+  },
   // Insert an application
   createApplication: async (input) => {
     try {

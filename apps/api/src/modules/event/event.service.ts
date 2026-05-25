@@ -58,25 +58,40 @@ export const createEventService = ({
   getEventById: (eventId) => repository.getEventById(eventId),
 
   updateEvent: async (eventId, input) => {
-    // check event exists
+    // 1. Check event exists
     const existingEvent = await repository.getEventById(eventId);
     if (!existingEvent) {
       throw new Error("Event not found.");
     }
 
-    // prevent reopening closed events without an explicit admin workflow
+    // 2. Validate updated date (if provided)
+    if (input.date) {
+      const eventDate = new Date(input.date);
+      if (Number.isNaN(eventDate.getTime()) || eventDate <= new Date()) {
+        throw new Error(
+          "Updated event date must be a valid date in the future."
+        );
+      }
+    }
+
+    // 3. Validate updated quota (if provided)
+    if (input.quota !== undefined && input.quota <= 0) {
+      throw new Error("Updated event quota must be greater than zero.");
+    }
+
+    // 4. Prevent reopening closed events without an explicit admin workflow
     if (existingEvent.status === "closed" && input.status === "open") {
       throw new Error("Cannot reopen an event once it has been closed.");
     }
 
-    // prevent opening an event until its proposal is approved
+    // 5. Prevent opening an event until its proposal is approved
     // (Placeholder: Requires cross-checking proposal status via repo)
     if (input.status === "open" && existingEvent.status === "draft") {
       // throw new Error("Cannot open event until proposal is approved.");
     }
 
-    // preserve immutable fields such as creator after creation
-    return repository.updateEvent(eventId, input);
+    // Preserve immutable fields such as creator after creation
+    return await repository.updateEvent(eventId, input);
   },
 
   deleteEvent: (eventId) => repository.deleteEvent(eventId),

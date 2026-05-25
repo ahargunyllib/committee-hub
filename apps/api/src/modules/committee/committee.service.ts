@@ -45,28 +45,9 @@ export const createCommitteeService = ({
   },
 
   updateDivision: async (divisionId, input) => {
-    // check division exists
-    const division = await repository.getDivisionById(divisionId);
-    if (!division) {
-      throw new Error("Division not found.");
-    }
-
-    // prevent quota below accepted member count
-    if (input.quota !== undefined) {
-      const applications =
-        await repository.listApplicationsByDivision(divisionId);
-      const acceptedCount = applications.filter(
-        (app) => app.status === "accepted"
-      ).length;
-
-      if (input.quota < acceptedCount) {
-        throw new Error(
-          `Cannot reduce quota below current accepted members (${acceptedCount}).`
-        );
-      }
-    }
-
-    return repository.updateDivision(divisionId, input);
+    // Structural and invariant quota checks are now safely handled
+    // inside the ACID transaction in the repository layer.
+    return await repository.updateDivision(divisionId, input);
   },
 
   createApplication: async (input) => {
