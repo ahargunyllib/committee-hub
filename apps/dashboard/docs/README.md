@@ -40,17 +40,17 @@ Baca berurutan kalau mulai dari nol:
 
 Centang ✅ saat phase selesai (edit README ini setelah commit).
 
-- [ ] Phase 0 — Install deps & shadcn primitives
-- [ ] Phase 1 — Shared lib (api, auth, query, permissions, format, string)
-- [ ] Phase 2 — Status color tokens
-- [ ] Phase 3 — Protected dashboard layout (sidebar + topbar)
-- [ ] Phase 4 — Login screen
-- [ ] Phase 5 — Overview screen
-- [ ] Phase 6 — Events screen
-- [ ] Phase 7 — Proposals screen
-- [ ] Phase 8 — Committee screen
-- [ ] Phase 9 — Notifications screen
-- [ ] Phase 10 — Admin screen
+- [x] Phase 0 — Install deps & shadcn primitives
+- [x] Phase 1 — Shared lib (api, auth, query, permissions, format, string)
+- [x] Phase 2 — Status color tokens
+- [x] Phase 3 — Protected dashboard layout (sidebar + topbar)
+- [x] Phase 4 — Login screen
+- [x] Phase 5 — Overview screen
+- [x] Phase 6 — Events screen
+- [x] Phase 7 — Proposals screen
+- [x] Phase 8 — Committee screen
+- [x] Phase 9 — Notifications screen
+- [x] Phase 10 — Admin screen
 - [ ] Phase 11 — Polish (typecheck + lint pass + manual QA)
 
 ## Quick Commands
