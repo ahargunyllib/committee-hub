@@ -1,14 +1,10 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { AppLogo } from "../../shared/components/app-logo";
 import { Button } from "../../shared/components/ui/button";
 import { Card } from "../../shared/components/ui/card";
-import { AppLogo } from "../../shared/components/app-logo";
-import {
-  authClient,
-  dashboardOverviewUrl,
-  getSession,
-} from "../../shared/lib/auth";
+import { authClient, getSession } from "../../shared/lib/auth";
 
 export const Route = createFileRoute("/auth/login")({
   beforeLoad: async () => {
@@ -26,7 +22,8 @@ function LoginScreen() {
   const handleSignIn = async () => {
     setLoading(true);
     await authClient.signIn.social({
-      callbackURL: dashboardOverviewUrl(),
+      callbackURL: window.location.origin,
+      errorCallbackURL: `${window.location.origin}/auth/login`,
       provider: "google",
     });
   };
