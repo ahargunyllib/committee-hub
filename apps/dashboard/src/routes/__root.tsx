@@ -1,20 +1,39 @@
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import {
+  HeadContent,
+  Outlet,
+  createRootRouteWithContext,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import "@tedx-2026/ui/globals.css";
 
-const RootLayout = () => (
-  <>
-    <div className="flex gap-2 p-2">
-      <Link className="[&.active]:font-bold" to="/">
-        Home
-      </Link>{" "}
-      <Link className="[&.active]:font-bold" to="/about">
-        About
-      </Link>
-    </div>
-    <hr />
-    <Outlet />
-    <TanStackRouterDevtools />
-  </>
-);
+// biome-ignore lint/complexity/noBannedTypes: TODO
+export type RouterAppContext = {};
 
-export const Route = createRootRoute({ component: RootLayout });
+export const Route = createRootRouteWithContext<RouterAppContext>()({
+  component: RootComponent,
+  head: () => ({
+    meta: [
+      {
+        title: "Dashboard",
+      },
+      {
+        name: "description",
+        content: "The dashboard for Committee Hub",
+      },
+      {
+        name: "robots",
+        content: "noindex, nofollow",
+      },
+    ],
+  }),
+});
+
+function RootComponent() {
+  return (
+    <>
+      <HeadContent />
+      <Outlet />
+      <TanStackRouterDevtools position="bottom-left" />
+    </>
+  );
+}
