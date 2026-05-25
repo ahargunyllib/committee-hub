@@ -185,12 +185,11 @@ jobs:
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
           DASHBOARD_URL: ${{ secrets.DASHBOARD_URL }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: |
           missing=0
-          for name in BETTER_AUTH_SECRET BETTER_AUTH_URL DASHBOARD_URL DATABASE_URL GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET; do
+          for name in BETTER_AUTH_SECRET BETTER_AUTH_URL DASHBOARD_URL GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET; do
             if [ -z "${!name}" ]; then
               echo "$name GitHub secret is required for the API production deploy."
               missing=1
@@ -214,13 +213,11 @@ jobs:
             BETTER_AUTH_SECRET
             BETTER_AUTH_URL
             DASHBOARD_URL
-            DATABASE_URL
             GOOGLE_CLIENT_ID
             GOOGLE_CLIENT_SECRET
         env:
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
           DASHBOARD_URL: ${{ secrets.DASHBOARD_URL }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
