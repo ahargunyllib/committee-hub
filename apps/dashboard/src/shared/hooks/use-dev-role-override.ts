@@ -6,7 +6,8 @@ import type { UserRole } from "@/shared/lib/types";
 const ROLE_OVERRIDE_EVENT = "committee-hub:dev-role-override";
 const ROLE_OVERRIDE_STORAGE_KEY = "committee-hub.dev.role-override";
 
-export const isDevRoleOverrideEnabled = import.meta.env.DEV;
+export const isDevRoleOverrideEnabled =
+  import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEV_ROLE_PANEL === "true";
 
 const emitRoleOverrideChange = () => {
   window.dispatchEvent(new Event(ROLE_OVERRIDE_EVENT));
@@ -35,6 +36,8 @@ export const setDevRoleOverride = (role: UserRole | null) => {
   emitRoleOverrideChange();
 };
 
+// TODO: If dev role needs to exercise backend-protected flows, add an
+// explicit API-side dev middleware instead of trusting this client override.
 export const applyDevRoleOverride = <TUser extends { role: string }>(
   user: TUser,
   roleOverride: UserRole | null = getDevRoleOverride()

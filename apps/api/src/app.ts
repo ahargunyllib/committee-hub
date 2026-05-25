@@ -2,6 +2,7 @@ import { cors } from "@elysia/cors";
 import { openapi } from "@elysia/openapi";
 import type { ElysiaOpenAPIConfig } from "@elysia/openapi";
 import { Elysia } from "elysia";
+import type { ElysiaAdapter } from "elysia";
 import { db } from "./db";
 import { env } from "./env";
 import { auth } from "./lib/auth";
@@ -61,77 +62,80 @@ const adminService = createAdminService({
 
 registerNotificationListeners(notificationService);
 
-export const app = new Elysia()
-  .use(errorHandlerPlugin)
-  .use(requestContextPlugin)
-  .use(authContextPlugin)
-  .use(
-    cors({
-      allowedHeaders: ["Authorization", "Content-Type", "Cookie"],
-      credentials: true,
-      exposeHeaders: ["x-request-id"],
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      origin: isAllowedOrigin,
-    })
-  )
-  .use(
-    openapi({
-      documentation: {
-        components:
-          authOpenAPIDocumentation.components as unknown as OpenAPIDocumentation["components"],
-        info: {
-          description:
-            "Campus event and committee management API for committee-hub.",
-          title: "committee-hub API",
-          version: "0.1.0",
+export const createApp = (adapter?: ElysiaAdapter) =>
+  new Elysia({ adapter })
+    .use(errorHandlerPlugin)
+    .use(requestContextPlugin)
+    .use(authContextPlugin)
+    .use(
+      cors({
+        allowedHeaders: ["Authorization", "Content-Type", "Cookie"],
+        credentials: true,
+        exposeHeaders: ["x-request-id"],
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        origin: isAllowedOrigin,
+      })
+    )
+    .use(
+      openapi({
+        documentation: {
+          components:
+            authOpenAPIDocumentation.components as unknown as OpenAPIDocumentation["components"],
+          info: {
+            description:
+              "Campus event and committee management API for committee-hub.",
+            title: "committee-hub API",
+            version: "0.1.0",
+          },
+          tags: [
+            { name: "Better Auth" },
+            { name: "Committee" },
+            { name: "Proposal" },
+            { name: "Event" },
+            { name: "Notification" },
+            { name: "Admin" },
+          ],
+          paths:
+            authOpenAPIDocumentation.paths as unknown as OpenAPIDocumentation["paths"],
         },
-        tags: [
-          { name: "Better Auth" },
-          { name: "Committee" },
-          { name: "Proposal" },
-          { name: "Event" },
-          { name: "Notification" },
-          { name: "Admin" },
-        ],
-        paths:
-          authOpenAPIDocumentation.paths as unknown as OpenAPIDocumentation["paths"],
-      },
-      path: "/swagger",
-      provider: "swagger-ui",
-      specPath: "/swagger/json",
-    })
-  )
-  .get(
-    "/",
-    () => ({
-      message: "Welcome to the committee-hub API",
-      service: "committee-hub-api",
-    }),
-    {
-      detail: {
-        summary: "API root",
-        tags: ["Health"],
-      },
-    }
-  )
-  .get(
-    "/health",
-    () => ({
-      ok: true,
-      uptime: process.uptime(),
-    }),
-    {
-      detail: {
-        summary: "Health check",
-        tags: ["Health"],
-      },
-    }
-  )
-  .mount(auth.handler)
-  .use(createCommitteeRoutes(committeeService))
-  .use(createProposalRoutes(proposalService))
-  .use(createEventRoutes(eventService))
-  .use(createNotificationRoutes(notificationService))
-  .use(createAdminRoutes(adminService));
+        path: "/swagger",
+        provider: "swagger-ui",
+        specPath: "/swagger/json",
+      })
+    )
+    .get(
+      "/",
+      () => ({
+        message: "Welcome to the committee-hub API",
+        service: "committee-hub-api",
+      }),
+      {
+        detail: {
+          summary: "API root",
+          tags: ["Health"],
+        },
+      }
+    )
+    .get(
+      "/health",
+      () => ({
+        ok: true,
+        uptime: process.uptime(),
+      }),
+      {
+        detail: {
+          summary: "Health check",
+          tags: ["Health"],
+        },
+      }
+    )
+    .mount(auth.handler)
+    .use(createCommitteeRoutes(committeeService))
+    .use(createProposalRoutes(proposalService))
+    .use(createEventRoutes(eventService))
+    .use(createNotificationRoutes(notificationService))
+    .use(createAdminRoutes(adminService));
+
+export const app = createApp();
 
 export type App = typeof app;

@@ -1,0 +1,24 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "committee-hub-api",
+  "main": "./src/worker.ts",
+  "compatibility_date": "2026-05-25",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "NODE_ENV": "production",
+    "LOG_LEVEL": "info"
+  },
+  "observability": {
+    "enabled": true
+  }
+
+  // To use Cloudflare Hyperdrive instead of DATABASE_URL directly, create a
+  // Hyperdrive config and add the binding below. src/worker.ts will prefer
+  // HYPERDRIVE.connectionString when it is present.
+  // "hyperdrive": [
+  //   {
+  //     "binding": "HYPERDRIVE",
+  //     "id": "<your-hyperdrive-id>"
+  //   }
+  // ]
+}

@@ -4,6 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "bun run src/index.ts",
+    "build": "tsc --noEmit",
+    "deploy": "wrangler deploy",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
