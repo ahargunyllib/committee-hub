@@ -5,7 +5,7 @@ import { schema } from "./schema";
 
 export const postgresClient = postgres(env.HYPERDRIVE.connectionString, {
   fetch_types: false,
-  max: env.NODE_ENV === "production" ? 5 : 1,
+  max: 5,
 });
 
 export const db = drizzle(postgresClient, {

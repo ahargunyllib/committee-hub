@@ -13,7 +13,7 @@ const userRole = t.Union([
   t.Literal("admin"),
 ]);
 
-const isDevRoleEndpointEnabled = process.env.NODE_ENV !== "production";
+const isDevRoleEndpointEnabled = true;
 
 const requireDevSession = async (headers: Headers): Promise<string> => {
   if (!isDevRoleEndpointEnabled) {
