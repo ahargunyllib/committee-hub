@@ -146,4 +146,6 @@ export const app = new Elysia({
   .use(createAdminRoutes(adminService))
   .compile();
 
+export default app;
+
 export type App = typeof app;
